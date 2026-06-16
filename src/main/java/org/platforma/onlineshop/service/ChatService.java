@@ -23,7 +23,7 @@ public class ChatService {
 
   @Autowired private CategoryRepository categoryRepository;
 
-  private static final String OPENAI_URL = "https://api.groq.com/openai/v1/chat/completions";
+  private static final String OPENAI_URL = "<>";
 
   private final RestTemplate restTemplate = new RestTemplate();
 
