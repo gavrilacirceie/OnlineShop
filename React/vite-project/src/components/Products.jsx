@@ -10,7 +10,7 @@ const Products = () => {
             productName: "Iphone Xs max",
             image: "https://placehold.co/600x400",
             productDescription: "Experience the latest in mobile technology with advanced cameras, powerful processing, and an all-day battery.",
-            quantity: 0,
+            quantity: 1,
             productPrice: 1450.0,
             discountPrice: 10.0,
             specialPrice: 1305.0,
