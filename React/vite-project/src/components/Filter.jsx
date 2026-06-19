@@ -3,14 +3,7 @@ import {FiArrowDown, FiArrowUp, FiRefreshCw, FiSearch} from "react-icons/fi";
 import {Button, FormControl, InputLabel, MenuItem, Select, Tooltip} from "@mui/material";
 import {useLocation, useNavigate, useSearchParams} from "react-router-dom";
 
-const Filter = () => {
-    const categories = [
-        {categoryId: 1, categoryName: "Electronics"},
-        {categoryId: 2, categoryName: "Clothing"},
-        {categoryId: 3, categoryName: "Furniture"},
-        {categoryId: 4, categoryName: "Toys"},
-        {categoryId: 5, categoryName: "Books"},
-    ];
+const Filter = ({categories}) => {
 
     const [searchParams] = useSearchParams();
     const params = new URLSearchParams(searchParams);
@@ -33,18 +26,19 @@ const Filter = () => {
 
     useEffect(() => {
         const handler = setTimeout(() => {
+            const currentParams = new URLSearchParams(window.location.search);
             if(searchTerm){
-                searchParams.set("keyword", searchTerm);
+                currentParams.set("keyword", searchTerm);
             }else{
-                searchParams.delete("keyword");
+                currentParams.delete("keyword");
             }
-            navigate(`${pathName}?${searchParams.toString()}`);
+            navigate(`${pathName}?${currentParams.toString()}`);
         }, 700);
 
         return () => {
             clearTimeout(handler);
         };
-    }, [searchParams, searchTerm, navigate, pathName]);
+    }, [searchTerm, navigate, pathName]);
     const handleCategoryChange = (e) => {
       const selectedCategory = e.target.value;
       if (selectedCategory === "all") {

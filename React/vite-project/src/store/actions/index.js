@@ -19,3 +19,23 @@ export const fetchProducts = (queryString) => async dispatch => {
         dispatch({type: "FETCH_PRODUCTS_ERROR", payload: err?.response?.data?.message || "Something went wrong"});
     }
 }
+
+export const fetchCategories = (queryString) => async dispatch => {
+    try{
+        dispatch({type: "CATEGORY_LOADING"});
+        const {data} = await api.get(`/public/categories?${queryString}`);
+        dispatch({
+            type: 'FETCH_CATEGORY',
+            payload: data.content,
+            pageNumber: data.pageNumber,
+            pageSize: data.pageSize,
+            totalElements: data.totalElements,
+            totalPages: data.totalPages,
+            lastPage: data.lastPage,
+        });
+        dispatch({type: "IS_ERROR"});
+    }catch(err){
+        console.log(err);
+        dispatch({type: "IS_ERROR", payload: err?.response?.data?.message || "Something went wrong"});
+    }
+}

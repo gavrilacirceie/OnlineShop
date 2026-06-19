@@ -2,7 +2,7 @@ import ProductCard from "./ProductCard";
 import {FaExclamationCircle} from "react-icons/fa";
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
-import {fetchProducts} from "../store/actions/index.js";
+import {fetchCategories, fetchProducts} from "../store/actions/index.js";
 import Filter from "./Filter.jsx";
 import useProductFilter from "./useProductFilter.jsx";
 
@@ -13,16 +13,18 @@ const Products = () => {
     const {isLoading, errorMessage} = useSelector(
         (state) => state.error
     );
-    const {products} = useSelector(
+    const {products, categories, pagination} = useSelector(
         (state) => state.products
     )
     const dispatch = useDispatch();
-
+    useEffect(() => {
+        dispatch(fetchCategories(""));
+    }, [dispatch])
     useProductFilter();
 
     return (
         <div className="lg:px-14 sm:px-8 px-4 py-14 2xl:w-[90%] 2xl:mx-auto">
-            <Filter />
+            <Filter categories={categories ? categories : []}/>
             {isLoading ? (
                 <p>Loading...</p>
             ) : errorMessage ? (

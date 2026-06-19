@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +38,9 @@ public class ProductServiceImpl implements ProductService {
 
   @Value("${project.image.path}")
   private String imagePath;
+
+  @Value("${image.base.url}")
+  private String imageBaseUrl;
 
   @Autowired private CartRepository cartRepository;
   @Autowired private CartService cartService;
@@ -77,24 +81,51 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public ProductResponse getAllProducts(
-      Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+          Integer pageNumber, Integer pageSize, String sortBy, String sortOrder, String keyword, String category) {
     Sort sort =
         sortOrder.equalsIgnoreCase("asc")
             ? Sort.by(sortBy).ascending()
             : Sort.by(sortBy).descending();
     Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-    Page<Product> productPage = productRepository.findAll(pageable);
+
+    Specification<Product> spec = null;
+
+    if (keyword != null && !keyword.isEmpty()) {
+      Specification<Product> keywordSpec = (root, query, cb) ->
+          cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%");
+      spec = keywordSpec;
+    }
+
+    if (category != null && !category.isEmpty()) {
+      Specification<Product> categorySpec = (root, query, cb) ->
+          cb.equal(cb.lower(root.get("category").get("categoryName")), category.toLowerCase());
+      spec = (spec == null) ? categorySpec : spec.and(categorySpec);
+    }
+
+    Page<Product> productPage;
+    if (spec != null) {
+      productPage = productRepository.findAll(spec, pageable);
+    } else {
+      productPage = productRepository.findAll(pageable);
+    }
+
     List<Product> allProducts = productPage.getContent();
-    if (allProducts.isEmpty()) throw new APIException("No products found");
 
     return getProductResponse(allProducts, productPage);
   }
 
+  private String constructImageUrl(String imageName){
+    return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
+  }
+
   @NonNull
   private ProductResponse getProductResponse(List<Product> allProducts, Page<Product> productPage) {
-    if (allProducts.isEmpty()) throw new APIException("No products found");
     List<ProductDTO> productDTOS =
-        allProducts.stream().map(product -> modelMapper.map(product, ProductDTO.class)).toList();
+        allProducts.stream().map(product -> {
+          ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+          productDTO.setImage(constructImageUrl(productDTO.getImage()));
+          return productDTO;
+        }).toList();
     ProductResponse productResponse = new ProductResponse();
     productResponse.setContent(productDTOS);
     productResponse.setPageNumber(productPage.getNumber());
