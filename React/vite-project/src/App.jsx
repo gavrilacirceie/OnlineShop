@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import './App.css'
-import './components/Products.jsx'
+import './components/product/Products.jsx'
 import { FaBeer } from 'react-icons/fa';
-import Products from "./components/Products.jsx";
+import Products from "./components/product/Products.jsx";
 
 
 function App() {
