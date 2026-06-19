@@ -1,8 +1,9 @@
 import api from "../../api/api.js";
 
-export const fetchProducts = () => async dispatch => {
+export const fetchProducts = (queryString) => async dispatch => {
     try{
-        const {data} = await api.get('/public/products');
+        dispatch({type: "IS_FETCHING"});
+        const {data} = await api.get(`/public/products?${queryString}`);
         dispatch({
             type: 'FETCH_PRODUCTS',
             payload: data.content,
@@ -11,8 +12,10 @@ export const fetchProducts = () => async dispatch => {
             totalElements: data.totalElements,
             totalPages: data.totalPages,
             lastPage: data.lastPage,
-        })
+        });
+        dispatch({type: "FETCH_PRODUCTS_SUCCESS"});
     }catch(err){
-        console.log(err)
+        console.log(err);
+        dispatch({type: "FETCH_PRODUCTS_ERROR", payload: err?.response?.data?.message || "Something went wrong"});
     }
 }
