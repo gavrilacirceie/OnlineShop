@@ -16,7 +16,7 @@ export const fetchProducts = (queryString) => async dispatch => {
         dispatch({type: "FETCH_PRODUCTS_SUCCESS"});
     }catch(err){
         console.log(err);
-        dispatch({type: "FETCH_PRODUCTS_ERROR", payload: err?.response?.data?.message || "Something went wrong"});
+        dispatch({type: "IS_ERROR", payload: err?.response?.data?.message || "Something went wrong"});
     }
 }
 
@@ -33,9 +33,15 @@ export const fetchCategories = (queryString) => async dispatch => {
             totalPages: data.totalPages,
             lastPage: data.lastPage,
         });
-        dispatch({type: "IS_ERROR"});
+        dispatch({type: "CATEGORY_SUCCESS"});
     }catch(err){
         console.log(err);
         dispatch({type: "IS_ERROR", payload: err?.response?.data?.message || "Something went wrong"});
     }
 }
+
+export const logOutUser = (navigate) => (dispatch) => {
+    dispatch({ type: "LOG_OUT" });
+    localStorage.removeItem("auth");
+    navigate("/login");
+};
