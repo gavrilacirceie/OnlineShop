@@ -2,6 +2,9 @@ import {useState} from "react";
 import {FaShoppingCart} from "react-icons/fa";
 import ProductViewModal from "./ProductViewModal.jsx";
 import truncateText from "../../utils/truncate.js";
+import {useDispatch} from "react-redux";
+import {addToCart} from "../../store/actions/index.js";
+import toast from "react-hot-toast";
 
 const ProductCard = ({productId, productName, image, productDescription, quantity, productPrice, discountPrice, specialPrice,
 }) => {
@@ -9,11 +12,16 @@ const ProductCard = ({productId, productName, image, productDescription, quantit
     const btnLoader = false;
     const [selectedProduct, setSelectedProduct] = useState("");
     const isAvailable = quantity && Number(quantity) > 0;
+    const dispatch = useDispatch();
 
     const handleProductView = (product) => {
       setSelectedProduct(product);
       setOpenProductViewModal(true);
     };
+
+    const addToCartHandler = (cartItems) => {
+        dispatch(addToCart(cartItems, 1, toast));
+    }
     return (
         <div className="border rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-shadow duration-300 bg-white">
             <div onClick={() => {
@@ -49,7 +57,18 @@ const ProductCard = ({productId, productName, image, productDescription, quantit
                         </span>
                     )}
                     <button
-                        disabled={!isAvailable}
+                        disabled={!isAvailable || btnLoader}
+                        onClick={() => addToCartHandler({
+                            image,
+                            productName,
+                            productDescription,
+                            quantity,
+                            productPrice,
+                            discountPrice,
+                            specialPrice,
+                            productId,
+
+                        })}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200 
                             ${isAvailable
                                 ? "bg-slate-700 text-white hover:bg-slate-900 cursor-pointer"
