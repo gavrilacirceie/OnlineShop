@@ -13,7 +13,7 @@ const Products = () => {
     // const errorMessage = "";
 
     const {isLoading, errorMessage} = useSelector(
-        (state) => state.error
+        (state) => state.errors
     );
     const {products, categories, pagination} = useSelector(
         (state) => state.products

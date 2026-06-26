@@ -1,5 +1,7 @@
+const storedUser = localStorage.getItem("auth");
+
 const initialState = {
-    user: null,
+    user: storedUser ? JSON.parse(storedUser) : null,
     address: [],
     clientSecret: null,
     selectedUserCheckoutAddress: null,

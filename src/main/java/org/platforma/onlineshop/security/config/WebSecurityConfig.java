@@ -84,6 +84,8 @@ public class WebSecurityConfig {
                     // .permitAll()
                     .requestMatchers("/api/test/**")
                     .permitAll()
+                    .requestMatchers("/api/chat/**")
+                    .permitAll()
                     .requestMatchers("/images/**")
                     .permitAll()
                     .requestMatchers("/h2-console/**")

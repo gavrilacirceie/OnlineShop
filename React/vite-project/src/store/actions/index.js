@@ -40,10 +40,30 @@ export const fetchCategories = (queryString) => async dispatch => {
     }
 }
 
-export const logOutUser = (navigate) => (dispatch) => {
+export const clearAuth = () => (dispatch) => {
     dispatch({ type: "LOG_OUT" });
     localStorage.removeItem("auth");
-    navigate("/login");
+};
+
+export const logOutUser = (navigate) => async (dispatch) => {
+    try {
+        await api.post("/auth/signout");
+    } catch (error) {
+        console.log(error);
+    } finally {
+        dispatch(clearAuth());
+        navigate("/login");
+    }
+};
+
+export const loadCurrentUser = () => async (dispatch) => {
+    try {
+        const { data } = await api.get("/auth/user");
+        dispatch({ type: "LOGIN_USER", payload: data });
+        localStorage.setItem("auth", JSON.stringify(data));
+    } catch {
+        dispatch(clearAuth());
+    }
 };
 
 export const addToCart = (data, qty = 1, toast) => (dispatch, getState) => {
@@ -104,3 +124,90 @@ export const removeFromCart = (data, toast) => (dispatch, getState) => {
     toast.success(`${data?.productName} removed from cart`);
 };
 
+export const authenticateSignInUser
+    = (sendData, toast, reset, navigate, setLoader) => async (dispatch) => {
+    try {
+        setLoader(true);
+        const { data } = await api.post("/auth/signin", sendData, { withCredentials: true });
+        dispatch({ type: "LOGIN_USER", payload: data });
+        localStorage.setItem("auth", JSON.stringify(data));
+        reset();
+        toast.success("Login Success");
+        navigate("/");
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Internal Server Error");
+    } finally {
+        setLoader(false);
+    }
+}
+
+export const authenticateSignUpUser
+    = (sendData, toast, reset, navigate, setLoader) => async () => {
+    try {
+        setLoader(true);
+        await api.post("/auth/signup", sendData);
+        reset();
+        toast.success("Registration successful! Please login.");
+        navigate("/login");
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Registration failed");
+    } finally {
+        setLoader(false);
+    }
+}
+
+export const addUpdateUserAddress =
+    (sendData, toast, addressId, setOpenAddress) => async (dispatch) => {
+        /*
+        const { user } = getState().auth;
+        await api.post(`/addresses`, sendData, {
+              headers: { Authorization: "Bearer " + user.jwtToken },
+            });
+        */
+        dispatch({ type:"BTN_LOADER" });
+        try {
+            if (!addressId) {
+                await api.post("/addresses", sendData);
+            } else {
+                await api.put(`/addresses/${addressId}`, sendData);
+            }
+            dispatch(getUserAddresses());
+            toast.success("Address saved successfully");
+            dispatch({ type:"IS_SUCCESS" });
+        } catch (error) {
+            console.log(error);
+            toast.error(error?.response?.data?.message || "Internal Server Error");
+            dispatch({ type:"IS_ERROR", payload: null });
+        } finally {
+            dispatch({ type:"BTN_LOADER_DONE" });
+            if (typeof setOpenAddress === "function") {
+                setOpenAddress(false);
+            }
+        }
+    };
+
+export const getUserAddresses = () => async (dispatch) => {
+    try {
+        dispatch({ type: "IS_FETCHING" });
+        const { data } = await api.get("/addresses/user");
+        dispatch({type: "USER_ADDRESS", payload: data});
+        dispatch({ type: "IS_SUCCESS" });
+    } catch (error) {
+        console.log(error);
+        dispatch({
+            type: "IS_ERROR",
+            payload: error?.response?.data?.message || "Failed to fetch user addresses",
+        });
+    }
+};
+
+export const selectUserCheckoutAddress = (address) => {
+    localStorage.setItem("CHECKOUT_ADDRESS", JSON.stringify(address));
+
+    return {
+        type: "SELECT_CHECKOUT_ADDRESS",
+        payload: address,
+    }
+};
