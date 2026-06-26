@@ -6,8 +6,9 @@ import SetQuantity from "./SetQuantity.jsx";
 import {useDispatch} from "react-redux";
 import {incrementCartQuantity, decrementCartQuantity, removeFromCart} from "../../store/actions/index.js";
 import toast from "react-hot-toast";
+import {getProductImageUrl} from "../../utils/imageUrl.js";
 
-const ItemContent = ({productId, productName, image, productDescription, quantity, price, discount, specialPrice, cartId,}) =>{
+const ItemContent = ({productId, productName, image, productDescription, quantity, price, specialPrice}) =>{
     const [currentQuantity, setCurrentQuantity] = useState(quantity);
 
     const dispatch = useDispatch();
@@ -30,7 +31,7 @@ const ItemContent = ({productId, productName, image, productDescription, quantit
                 </div>
                 <div>
                     <img
-                        src={image}
+                        src={getProductImageUrl(image)}
                         alt={productName}
                         className="md:h-36 sm:h-24 h-16 w-full object-cover rounded-lg border border-gray-100"/>
 

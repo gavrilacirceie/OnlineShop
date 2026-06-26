@@ -7,7 +7,6 @@ import org.platforma.onlineshop.model.Address;
 import org.platforma.onlineshop.model.User;
 import org.platforma.onlineshop.payload.AddressDTO;
 import org.platforma.onlineshop.repositories.AddressRepository;
-import org.platforma.onlineshop.repositories.UserRepository;
 import org.platforma.onlineshop.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -211,3 +211,73 @@ export const selectUserCheckoutAddress = (address) => {
         payload: address,
     }
 };
+
+export const deleteUserAddress =
+    (toast, addressId, setOpenDeleteModal) => async (dispatch) => {
+        try {
+            dispatch({ type: "BTN_LOADER" });
+            await api.delete(`/addresses/${addressId}`);
+            dispatch({ type: "IS_SUCCESS" });
+            dispatch(getUserAddresses());
+            dispatch(clearCheckoutAddress());
+            toast.success("Address deleted successfully");
+        } catch (error) {
+            console.log(error);
+            dispatch({
+                type: "IS_ERROR",
+                payload: error?.response?.data?.message || "Some Error Occured",
+            });
+        } finally {
+            dispatch({ type: "BTN_LOADER_DONE" });
+            setOpenDeleteModal(false);
+        }
+    };
+
+export const clearCheckoutAddress = () => {
+    return {
+        type: "REMOVE_CHECKOUT_ADDRESS",
+    }
+};
+
+export const addPaymentMethod = (paymentMethod) => {
+    return {
+        type: "ADD_PAYMENT_METHOD",
+        payload: paymentMethod,
+    }
+};
+
+export const createUserCart = (sendCartItems) => async (dispatch, getState) => {
+    try {
+        dispatch({ type: "IS_FETCHING" });
+        await api.post('/cart/create', sendCartItems);
+        await dispatch(getUserCart());
+    } catch (error) {
+        console.log(error);
+        dispatch({
+            type: "IS_ERROR",
+            payload: error?.response?.data?.message || "Failed to create cart items",
+        });
+    }
+};
+
+export const getUserCart = () => async (dispatch, getState) => {
+    try {
+        dispatch({ type: "IS_FETCHING" });
+        const { data } = await api.get('/carts/users/cart');
+
+        dispatch({
+            type: "GET_USER_CART_PRODUCTS",
+            payload: data.products,
+            totalPrice: data.totalPrice,
+            cartId: data.cartId
+        })
+        localStorage.setItem("cartItems", JSON.stringify(getState().carts.cart));
+        dispatch({ type: "IS_SUCCESS" });
+    } catch (error) {
+        console.log(error);
+        dispatch({
+            type: "IS_ERROR",
+            payload: error?.response?.data?.message || "Failed to fetch cart items",
+        });
+    }
+};

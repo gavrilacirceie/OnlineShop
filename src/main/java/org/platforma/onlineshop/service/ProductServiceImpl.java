@@ -81,7 +81,12 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public ProductResponse getAllProducts(
-          Integer pageNumber, Integer pageSize, String sortBy, String sortOrder, String keyword, String category) {
+      Integer pageNumber,
+      Integer pageSize,
+      String sortBy,
+      String sortOrder,
+      String keyword,
+      String category) {
     Sort sort =
         sortOrder.equalsIgnoreCase("asc")
             ? Sort.by(sortBy).ascending()
@@ -91,14 +96,16 @@ public class ProductServiceImpl implements ProductService {
     Specification<Product> spec = null;
 
     if (keyword != null && !keyword.isEmpty()) {
-      Specification<Product> keywordSpec = (root, query, cb) ->
-          cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%");
+      Specification<Product> keywordSpec =
+          (root, query, cb) ->
+              cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%");
       spec = keywordSpec;
     }
 
     if (category != null && !category.isEmpty()) {
-      Specification<Product> categorySpec = (root, query, cb) ->
-          cb.equal(cb.lower(root.get("category").get("categoryName")), category.toLowerCase());
+      Specification<Product> categorySpec =
+          (root, query, cb) ->
+              cb.equal(cb.lower(root.get("category").get("categoryName")), category.toLowerCase());
       spec = (spec == null) ? categorySpec : spec.and(categorySpec);
     }
 
@@ -114,18 +121,21 @@ public class ProductServiceImpl implements ProductService {
     return getProductResponse(allProducts, productPage);
   }
 
-  private String constructImageUrl(String imageName){
+  private String constructImageUrl(String imageName) {
     return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
   }
 
   @NonNull
   private ProductResponse getProductResponse(List<Product> allProducts, Page<Product> productPage) {
     List<ProductDTO> productDTOS =
-        allProducts.stream().map(product -> {
-          ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
-          productDTO.setImage(constructImageUrl(productDTO.getImage()));
-          return productDTO;
-        }).toList();
+        allProducts.stream()
+            .map(
+                product -> {
+                  ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+                  productDTO.setImage(constructImageUrl(productDTO.getImage()));
+                  return productDTO;
+                })
+            .toList();
     ProductResponse productResponse = new ProductResponse();
     productResponse.setContent(productDTOS);
     productResponse.setPageNumber(productPage.getNumber());

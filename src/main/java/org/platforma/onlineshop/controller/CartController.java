@@ -3,6 +3,7 @@ package org.platforma.onlineshop.controller;
 import java.util.List;
 import org.platforma.onlineshop.model.Cart;
 import org.platforma.onlineshop.payload.CartDTO;
+import org.platforma.onlineshop.payload.CartItemsDTO;
 import org.platforma.onlineshop.repositories.CartRepository;
 import org.platforma.onlineshop.service.CartService;
 import org.platforma.onlineshop.util.AuthUtil;
@@ -23,6 +24,12 @@ public class CartController {
       @PathVariable Long productId, @PathVariable Integer quantity) {
     CartDTO cartDTO = cartService.addProductToCart(productId, quantity);
     return new ResponseEntity<>(cartDTO, HttpStatus.OK);
+  }
+
+  @PostMapping("/cart/create")
+  public ResponseEntity<String> createOrUpdateCart(@RequestBody List<CartItemsDTO> cartItemsDTO) {
+    String cartDTO = cartService.createOrUpdateCartWithItems(cartItemsDTO);
+    return new ResponseEntity<>(cartDTO, HttpStatus.CREATED);
   }
 
   @GetMapping("/carts")

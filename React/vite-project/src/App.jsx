@@ -13,6 +13,7 @@ import Login from "./components/auth/Login.jsx";
 import Register from "./components/auth/Register.jsx";
 import Chat from "./components/chat/Chat.jsx";
 import GuestRoute from "./components/auth/GuestRoute.jsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import Checkout from "./components/checkout/Checkout.jsx";
 import {useDispatch} from "react-redux";
 import {loadCurrentUser} from "./store/actions";
@@ -34,7 +35,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<Cart/>} />
-            <Route path="/checkout" element={<Checkout/>} />
+            <Route path="/checkout" element={<ProtectedRoute><Checkout/></ProtectedRoute>} />
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
             <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
         </Routes>

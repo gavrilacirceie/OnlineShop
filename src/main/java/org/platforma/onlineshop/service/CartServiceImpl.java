@@ -11,12 +11,14 @@ import org.platforma.onlineshop.model.Cart;
 import org.platforma.onlineshop.model.CartItem;
 import org.platforma.onlineshop.model.Product;
 import org.platforma.onlineshop.payload.CartDTO;
+import org.platforma.onlineshop.payload.CartItemsDTO;
 import org.platforma.onlineshop.payload.ProductDTO;
 import org.platforma.onlineshop.repositories.CartItemRepository;
 import org.platforma.onlineshop.repositories.CartRepository;
 import org.platforma.onlineshop.repositories.ProductRepository;
 import org.platforma.onlineshop.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,9 @@ public class CartServiceImpl implements CartService {
   @Autowired CartItemRepository cartItemRepository;
 
   @Autowired ModelMapper modelMapper;
+
+  @Value("${image.base.url}")
+  private String imageBaseUrl;
 
   @Override
   public CartDTO addProductToCart(Long productId, Integer quantity) {
@@ -103,6 +108,7 @@ public class CartServiceImpl implements CartService {
                                 modelMapper.map(cartItem.getProduct(), ProductDTO.class);
                             productDTO.setQuantity(
                                 cartItem.getQuantity()); // Set the quantity from CartItem
+                            productDTO.setImage(constructImageUrl(productDTO.getImage()));
                             return productDTO;
                           })
                       .collect(Collectors.toList());
@@ -124,7 +130,12 @@ public class CartServiceImpl implements CartService {
     cart.getCartItems().forEach(c -> c.getProduct().setQuantity(c.getQuantity()));
     List<ProductDTO> products =
         cart.getCartItems().stream()
-            .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class))
+            .map(
+                p -> {
+                  ProductDTO productDTO = modelMapper.map(p.getProduct(), ProductDTO.class);
+                  productDTO.setImage(constructImageUrl(productDTO.getImage()));
+                  return productDTO;
+                })
             .toList();
     cartDTO.setProducts(products);
     return cartDTO;
@@ -206,12 +217,25 @@ public class CartServiceImpl implements CartService {
                 item -> {
                   ProductDTO prd = modelMapper.map(item.getProduct(), ProductDTO.class);
                   prd.setQuantity(item.getQuantity());
+                  prd.setImage(constructImageUrl(prd.getImage()));
                   return prd;
                 });
 
     cartDTO.setProducts(productStream.toList());
 
     return cartDTO;
+  }
+
+  private String constructImageUrl(String imageName) {
+    if (imageName == null || imageName.isBlank()) {
+      return imageName;
+    }
+
+    if (imageName.startsWith("http://") || imageName.startsWith("https://")) {
+      return imageName;
+    }
+
+    return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
   }
 
   private Cart createCart() {
@@ -276,54 +300,59 @@ public class CartServiceImpl implements CartService {
     cartItem = cartItemRepository.save(cartItem);
   }
 
-  //  @Transactional
   //  @Override
-  //  public String createOrUpdateCartWithItems(List<CartItemDTO> cartItems) {
-  //    // Get user's email
-  //    String emailId = authUtil.loggedInEmail();
-  //
-  //    // Check if an existing cart is available or create a new one
-  //    Cart existingCart = cartRepository.findCartByEmail(emailId);
-  //    if (existingCart == null) {
-  //      existingCart = new Cart();
-  //      existingCart.setTotalPrice(0.00);
-  //      existingCart.setUser(authUtil.loggedInUser());
-  //      existingCart = cartRepository.save(existingCart);
-  //    } else {
-  //      // Clear all current items in the existing cart
-  //      cartItemRepository.deleteAllByCartId(existingCart.getCartId());
-  //    }
-  //
-  //    double totalPrice = 0.00;
-  //
-  //    // Process each item in the request to add to the cart
-  //    for (CartItemDTO cartItemDTO : cartItems) {
-  //      Long productId = cartItemDTO.getProductId();
-  //      Integer quantity = cartItemDTO.getQuantity();
-  //
-  //      // Find the product by ID
-  //      Product product = productRepository.findById(productId)
-  //              .orElseThrow(() -> new ResourceNotFoundException("Product", "productId",
-  // productId));
-  //
-  //      // Directly update product stock and total price
-  //      // product.setQuantity(product.getQuantity() - quantity);
-  //      totalPrice += product.getSpecialPrice() * quantity;
-  //
-  //      // Create and save cart item
-  //      CartItem cartItem = new CartItem();
-  //      cartItem.setProduct(product);
-  //      cartItem.setCart(existingCart);
-  //      cartItem.setQuantity(quantity);
-  //      cartItem.setProductPrice(product.getSpecialPrice());
-  //      cartItem.setDiscount(product.getDiscount());
-  //      cartItemRepository.save(cartItem);
-  //    }
-  //
-  //    // Update the cart's total price and save
-  //    existingCart.setTotalPrice(totalPrice);
-  //    cartRepository.save(existingCart);
-  //    return "Cart created/updated with the new items successfully";
+  //  public String createOrUpdateCartWithItems(List<CartItemsDTO> cartItemsDTO) {
+  //    return "";
   //  }
 
+  @Transactional
+  @Override
+  public String createOrUpdateCartWithItems(List<CartItemsDTO> cartItems) {
+    // Get user's email
+    String emailId = authUtil.loggedInEmail();
+
+    // Check if an existing cart is available or create a new one
+    Cart existingCart = cartRepository.findCartByEmail(emailId);
+    if (existingCart == null) {
+      existingCart = new Cart();
+      existingCart.setTotalPrice(0.00);
+      existingCart.setUser(authUtil.loggedInUser());
+      existingCart = cartRepository.save(existingCart);
+    } else {
+      // Clear all current items in the existing cart
+      cartItemRepository.deleteAllByCartId(existingCart.getCartId());
+    }
+
+    double totalPrice = 0.00;
+
+    // Process each item in the request to add to the cart
+    for (CartItemsDTO cartItemDTO : cartItems) {
+      Long productId = cartItemDTO.getProductId();
+      Integer quantity = cartItemDTO.getQuantity();
+
+      // Find the product by ID
+      Product product =
+          productRepository
+              .findById(productId)
+              .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+      // Directly update product stock and total price
+      // product.setQuantity(product.getQuantity() - quantity);
+      totalPrice += product.getSpecialPrice() * quantity;
+
+      // Create and save cart item
+      CartItem cartItem = new CartItem();
+      cartItem.setProduct(product);
+      cartItem.setCart(existingCart);
+      cartItem.setQuantity(quantity);
+      cartItem.setProductPrice(product.getSpecialPrice());
+      cartItem.setDiscount(product.getDiscountPrice());
+      cartItemRepository.save(cartItem);
+    }
+
+    // Update the cart's total price and save
+    existingCart.setTotalPrice(totalPrice);
+    cartRepository.save(existingCart);
+    return "Cart created/updated with the new items successfully";
+  }
 }

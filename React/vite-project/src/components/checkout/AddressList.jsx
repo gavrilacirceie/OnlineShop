@@ -3,7 +3,7 @@ import {FaBuilding, FaCheckCircle, FaEdit, FaStreetView, FaTrash} from "react-ic
 import {MdLocationCity, MdPinDrop, MdPublic} from "react-icons/md";
 import {selectUserCheckoutAddress} from "../../store/actions/index.js";
 
-const AddressList = ({address, setSelectedAddress, setOpenAddress,}) => {
+const AddressList = ({address, setSelectedAddress, setOpenAddress, setOpenDeleteModal}) => {
     const { selectedUserCheckoutAddress } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const onEditButtonHandler = (selectedAddress) => {
@@ -13,7 +13,7 @@ const AddressList = ({address, setSelectedAddress, setOpenAddress,}) => {
 
     const onDeleteButtonHandler = (addresses) => {
         setSelectedAddress(addresses);
-        // setOpenDeleteModal(true);
+        setOpenDeleteModal(true);
     };
 
     const handleAddressSelection = (addresses) => {
@@ -71,7 +71,10 @@ const AddressList = ({address, setSelectedAddress, setOpenAddress,}) => {
                         }}>
                             <FaEdit size={18} className="text-teal-700" />
                         </button>
-                        <button onClick={() => onDeleteButtonHandler(address)}>
+                        <button type="button" onClick={(event) => {
+                            event.stopPropagation();
+                            onDeleteButtonHandler(address);
+                        }}>
                             <FaTrash size={17} className="text-rose-600" />
                         </button>
                     </div>
