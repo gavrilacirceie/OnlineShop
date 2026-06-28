@@ -7,10 +7,13 @@ import org.modelmapper.ModelMapper;
 import org.platforma.onlineshop.exceptions.APIException;
 import org.platforma.onlineshop.exceptions.ResourceNotFoundException;
 import org.platforma.onlineshop.model.*;
-import org.platforma.onlineshop.payload.OrderDTO;
-import org.platforma.onlineshop.payload.OrderItemDTO;
+import org.platforma.onlineshop.payload.*;
 import org.platforma.onlineshop.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,7 +36,6 @@ public class OrderServiceImpl implements OrderService {
       String pgPaymentId,
       String pgStatus,
       String pgResponseMessage) {
-    // Getting user cart
     Cart cart = cartRepository.findCartByEmail(emailId);
     if (cart == null) {
       throw new ResourceNotFoundException("Cart", "email", emailId);
@@ -43,7 +45,6 @@ public class OrderServiceImpl implements OrderService {
         addressRepository
             .findById(addressId)
             .orElseThrow(() -> new ResourceNotFoundException("Address", "id", addressId));
-    // Create a new order with payment info
     Order order = new Order();
     order.setEmail(emailId);
     order.setDate(LocalDate.now());
@@ -57,7 +58,6 @@ public class OrderServiceImpl implements OrderService {
 
     Order savedOrder = orderRepository.save(order);
 
-    // Get items from the cart
     List<CartItem> cartItems = cart.getCartItems();
     if (cartItems.isEmpty()) {
       throw new APIException("Cart is empty");
@@ -87,12 +87,37 @@ public class OrderServiceImpl implements OrderService {
               cartService.deleteProductFromCart(
                   cart.getCartId(), cartItem.getProduct().getProductId());
             });
-    // clear the cart
-    // send back order summary
     OrderDTO orderDTO = modelMapper.map(savedOrder, OrderDTO.class);
     orderItems.forEach(
         orderItem -> orderDTO.getOrderItems().add(modelMapper.map(orderItem, OrderItemDTO.class)));
     orderDTO.setAddressId(addressId);
     return orderDTO;
+  }
+
+  @Override
+  public OrderResponse getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    Sort sortByAndOrder =
+            sortOrder.equalsIgnoreCase("asc")
+                    ? Sort.by(Sort.Direction.ASC, sortBy)
+                    : Sort.by(Sort.Direction.DESC, sortBy);
+    Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+    Page<Order> orderPage = orderRepository.findAll(pageable);
+
+    List<Order> orders = orderPage.getContent();
+    if (orders.isEmpty()) {
+      throw new APIException("No orders found");
+    }
+    List<OrderDTO> orderDTOS =
+            orders.stream().map(category -> modelMapper.map(category, OrderDTO.class)).toList();
+
+    OrderResponse orderResponse = new OrderResponse();
+    orderResponse.setContent(orderDTOS);
+    orderResponse.setPageNumber(orderPage.getNumber());
+    orderResponse.setPageSize(orderPage.getSize());
+    orderResponse.setTotalElements((long) orderPage.getTotalElements());
+    orderResponse.setTotalPages(orderPage.getTotalPages());
+    orderResponse.setLastPage(orderPage.isLast());
+
+    return orderResponse;
   }
 }

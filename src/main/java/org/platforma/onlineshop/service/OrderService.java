@@ -2,6 +2,7 @@ package org.platforma.onlineshop.service;
 
 import jakarta.transaction.Transactional;
 import org.platforma.onlineshop.payload.OrderDTO;
+import org.platforma.onlineshop.payload.OrderResponse;
 
 public interface OrderService {
   @Transactional
@@ -13,4 +14,6 @@ public interface OrderService {
       String pgPaymentId,
       String pgStatus,
       String pgResponseMessage);
+
+    OrderResponse getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 }
