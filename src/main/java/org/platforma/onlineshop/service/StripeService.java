@@ -6,5 +6,5 @@ import org.platforma.onlineshop.payload.StripePaymentDTO;
 
 public interface StripeService {
 
-    PaymentIntent paymentIntent(StripePaymentDTO stripePaymentDTO) throws StripeException;
+  PaymentIntent paymentIntent(StripePaymentDTO stripePaymentDTO) throws StripeException;
 }

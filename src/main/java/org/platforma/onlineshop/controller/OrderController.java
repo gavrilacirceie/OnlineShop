@@ -1,6 +1,5 @@
 package org.platforma.onlineshop.controller;
 
-import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import org.platforma.onlineshop.payload.OrderDTO;
@@ -39,10 +38,11 @@ public class OrderController {
             orderRequestDTO.getPgResponseMessage());
     return new ResponseEntity<>(order, HttpStatus.CREATED);
   }
+
   @PostMapping("/order/stripe-client-secret")
-  public ResponseEntity<String> createStripeClient(@RequestBody StripePaymentDTO stripePaymentDTO) throws StripeException {
+  public ResponseEntity<String> createStripeClient(@RequestBody StripePaymentDTO stripePaymentDTO)
+      throws StripeException {
     PaymentIntent paymentIntent = stripeService.paymentIntent(stripePaymentDTO);
     return new ResponseEntity<>(paymentIntent.getClientSecret(), HttpStatus.CREATED);
   }
-
 }

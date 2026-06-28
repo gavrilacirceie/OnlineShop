@@ -56,7 +56,12 @@ public class AuthController {
     List<String> roles =
         userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
     LoginResponse loginResponse =
-        new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
+        new LoginResponse(
+            userDetails.getId(),
+            userDetails.getUsername(),
+            roles,
+            userDetails.getEmail(),
+            jwtCookie.getValue());
 
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
