@@ -7,10 +7,14 @@ import {paymentMethodReducer} from "./paymentMethodReducer.js";
 
 const cartItems = localStorage.getItem("cartItems") ? JSON.parse(localStorage.getItem("cartItems")) : [];
 
-const user = localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")) : []
+const user = localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")) : [];
+
+const selectUserCheckoutAddress = localStorage.getItem("CHECKOUT_ADDRESS")
+    ? JSON.parse(localStorage.getItem("CHECKOUT_ADDRESS"))
+    : [];
 
 const initialState = {
-    auth: {user: user},
+    auth: {user: user, selectUserCheckoutAddress},
     carts: { cart: cartItems },
 };
 export const store = configureStore({

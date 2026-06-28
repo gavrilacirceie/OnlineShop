@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import Checkout from "./components/checkout/Checkout.jsx";
 import {useDispatch} from "react-redux";
 import {loadCurrentUser} from "./store/actions";
+import PaymentConfirmation from "./components/checkout/PaymentConfirmation.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -36,6 +37,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<Cart/>} />
             <Route path="/checkout" element={<ProtectedRoute><Checkout/></ProtectedRoute>} />
+            <Route path="/order-confirm" element={<ProtectedRoute><PaymentConfirmation/></ProtectedRoute>} />
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
             <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
         </Routes>
