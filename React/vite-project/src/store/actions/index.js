@@ -246,7 +246,31 @@ export const addPaymentMethod = (paymentMethod) => {
     }
 };
 
-export const createUserCart = (sendCartItems) => async (dispatch, getState) => {
+export const placeCashOrder = (addressId, toast, navigate) => async (dispatch) => {
+    try {
+        dispatch({ type: "BTN_LOADER" });
+        await api.post("/order/users/payments/Cash", {
+            addressId,
+            paymentMethod: "Cash",
+            pgName: "Cash on delivery",
+            pgPaymentId: "COD",
+            pgStatus: "PENDING",
+            pgResponseMessage: "Payment will be collected on delivery",
+        });
+
+        dispatch({ type: "CLEAR_CART" });
+        localStorage.removeItem("cartItems");
+        toast.success("Order placed successfully");
+        navigate("/");
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Failed to place order");
+    } finally {
+        dispatch({ type: "BTN_LOADER_DONE" });
+    }
+};
+
+export const createUserCart = (sendCartItems) => async (dispatch) => {
     try {
         dispatch({ type: "IS_FETCHING" });
         await api.post('/cart/create', sendCartItems);

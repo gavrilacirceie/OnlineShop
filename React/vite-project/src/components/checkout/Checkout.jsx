@@ -11,6 +11,7 @@ import PaymentMethod from "./PaymentMethod.jsx";
 import OrderSummary from "./OrderSummary.jsx";
 import StripePayment from "./StripePayment.jsx";
 import PaypalPayment from "./PaypalPayment.jsx";
+import CashPayment from "./CashPayment.jsx";
 
 const Checkout = () => {
     const [activeStep, setActiveStep] = useState(0);
@@ -76,7 +77,9 @@ const Checkout = () => {
                     )}
                     {activeStep === 3 &&
                         <>
-                            {paymentMethod === "Stripe" ? (
+                            {paymentMethod === "Cash" ? (
+                                <CashPayment address={selectedUserCheckoutAddress} />
+                            ) : paymentMethod === "Stripe" ? (
                                 <StripePayment />
                             ) : (
                                 <PaypalPayment />

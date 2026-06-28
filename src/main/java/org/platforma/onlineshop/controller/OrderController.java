@@ -1,8 +1,13 @@
 package org.platforma.onlineshop.controller;
 
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import org.platforma.onlineshop.payload.OrderDTO;
 import org.platforma.onlineshop.payload.OrderRequestDTO;
+import org.platforma.onlineshop.payload.StripePaymentDTO;
 import org.platforma.onlineshop.service.OrderService;
+import org.platforma.onlineshop.service.StripeService;
 import org.platforma.onlineshop.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +20,8 @@ public class OrderController {
   @Autowired private OrderService orderService;
 
   @Autowired private AuthUtil authUtil;
+
+  @Autowired private StripeService stripeService;
 
   @PostMapping("/order/users/payments/{paymentMethod}")
   public ResponseEntity<OrderDTO> orderProducts(
@@ -32,4 +39,10 @@ public class OrderController {
             orderRequestDTO.getPgResponseMessage());
     return new ResponseEntity<>(order, HttpStatus.CREATED);
   }
+  @PostMapping("/order/stripe-client-secret")
+  public ResponseEntity<String> createStripeClient(@RequestBody StripePaymentDTO stripePaymentDTO) throws StripeException {
+    PaymentIntent paymentIntent = stripeService.paymentIntent(stripePaymentDTO);
+    return new ResponseEntity<>(paymentIntent.getClientSecret(), HttpStatus.CREATED);
+  }
+
 }
