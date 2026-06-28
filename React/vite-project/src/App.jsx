@@ -18,6 +18,12 @@ import Checkout from "./components/checkout/Checkout.jsx";
 import {useDispatch} from "react-redux";
 import {loadCurrentUser} from "./store/actions";
 import PaymentConfirmation from "./components/checkout/PaymentConfirmation.jsx";
+import AdminLayout from "./components/Admin/AdminLayout.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import Dashboard from "./components/Admin/dashboard/Dashboard.jsx";
+import Sellers from "./components/Admin/sellers/Sellers.jsx";
+import AdminProducts from "./components/Admin/products/AdminProducts.jsx";
+import Category from "./components/Admin/category/Category.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -40,6 +46,16 @@ function App() {
             <Route path="/order-confirm" element={<ProtectedRoute><PaymentConfirmation/></ProtectedRoute>} />
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
             <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+
+            <Route path='/' element={<PrivateRoute adminOnly />}>
+                <Route path='/admin' element={ <AdminLayout />}>
+                    <Route path='' element={<Dashboard />} />
+                    <Route path='products' element={<AdminProducts />} />
+                    <Route path='sellers' element={<Sellers />} />
+                    {/*<Route path='orders' element={<Orders />} />*/}
+                    <Route path='categories' element={<Category />} />
+                </Route>
+            </Route>
         </Routes>
         <Chat />
     </Router>

@@ -321,6 +321,22 @@ export const createStripePaymentSecret
     }
 };
 
+export const analyticsAction = () => async (dispatch, getState) => {
+    try {
+        dispatch({ type: "IS_FETCHING"});
+        const { data } = await api.get('/admin/app/analytics');
+        dispatch({
+            type: "FETCH_ANALYTICS",
+            payload: data,
+        })
+        dispatch({ type: "IS_SUCCESS"});
+    } catch (error) {
+        dispatch({
+            type: "IS_ERROR",
+            payload: error?.response?.data?.message || "Failed to fetch analytics data",
+        });
+    }
+};
 
 export const stripePaymentConfirmation
     = (sendData, setErrorMesssage, setLoadng, toast) => async (dispatch, getState) => {

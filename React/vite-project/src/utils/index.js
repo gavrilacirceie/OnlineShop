@@ -1,3 +1,25 @@
+import {
+    FaBox,
+    FaClipboardList,
+    FaStore,
+    FaTags,
+    FaTachometerAlt,
+} from "react-icons/fa";
+
+export const adminNavigation = [
+    { name: "Dashboard", href: "/admin", icon: FaTachometerAlt },
+    { name: "Products", href: "/admin/products", icon: FaBox },
+    { name: "Sellers", href: "/admin/sellers", icon: FaStore },
+    { name: "Orders", href: "/admin/orders", icon: FaClipboardList },
+    { name: "Categories", href: "/admin/categories", icon: FaTags },
+];
+
+export const sellerNavigation = [
+    { name: "Dashboard", href: "/seller", icon: FaTachometerAlt },
+    { name: "Products", href: "/seller/products", icon: FaBox },
+    { name: "Orders", href: "/seller/orders", icon: FaClipboardList },
+];
+
 export const bannerLists = [
     {
         id: 1,
@@ -21,4 +43,3 @@ export const bannerLists = [
         image: "/favicon.svg",
     },
 ];
-
