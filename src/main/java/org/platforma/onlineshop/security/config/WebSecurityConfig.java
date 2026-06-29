@@ -167,18 +167,35 @@ public class WebSecurityConfig {
 
       // Create users if not already present
       if (!userRepository.existsByUsername("user1")) {
-        User user1 = new User(passwordEncoder.encode("password1"), "user1@example.com", "user1");
+        User user1 =
+            new User(
+                passwordEncoder.encode("password1"),
+                "user1@example.com",
+                "user1",
+                "User",
+                "One");
         userRepository.save(user1);
       }
 
       if (!userRepository.existsByUsername("seller1")) {
         User seller1 =
-            new User(passwordEncoder.encode("password2"), "seller1@example.com", "seller1");
+            new User(
+                passwordEncoder.encode("password2"),
+                "seller1@example.com",
+                "seller1",
+                "Seller",
+                "One");
         userRepository.save(seller1);
       }
 
       if (!userRepository.existsByUsername("admin")) {
-        User admin = new User(passwordEncoder.encode("adminPass"), "admin@example.com", "admin");
+        User admin =
+            new User(
+                passwordEncoder.encode("adminPass"),
+                "admin@example.com",
+                "admin",
+                "Admin",
+                "User");
         userRepository.save(admin);
       }
 
@@ -187,6 +204,12 @@ public class WebSecurityConfig {
           .findByUsername("user1")
           .ifPresent(
               user -> {
+                if (user.getFirstName() == null || user.getFirstName().isBlank()) {
+                  user.setFirstName("User");
+                }
+                if (user.getLastName() == null || user.getLastName().isBlank()) {
+                  user.setLastName("One");
+                }
                 user.setRoles(userRoles);
                 userRepository.save(user);
               });
@@ -195,6 +218,12 @@ public class WebSecurityConfig {
           .findByUsername("seller1")
           .ifPresent(
               seller -> {
+                if (seller.getFirstName() == null || seller.getFirstName().isBlank()) {
+                  seller.setFirstName("Seller");
+                }
+                if (seller.getLastName() == null || seller.getLastName().isBlank()) {
+                  seller.setLastName("One");
+                }
                 seller.setRoles(sellerRoles);
                 userRepository.save(seller);
               });
@@ -203,6 +232,12 @@ public class WebSecurityConfig {
           .findByUsername("admin")
           .ifPresent(
               admin -> {
+                if (admin.getFirstName() == null || admin.getFirstName().isBlank()) {
+                  admin.setFirstName("Admin");
+                }
+                if (admin.getLastName() == null || admin.getLastName().isBlank()) {
+                  admin.setLastName("User");
+                }
                 admin.setRoles(adminRoles);
                 userRepository.save(admin);
               });

@@ -4,7 +4,18 @@ import { MdClose, MdDone } from 'react-icons/md';
 
 function ProductViewModal({open, setOpen, product, isAvailable}) {
 
-    const {productName, image, productDescription, productPrice, specialPrice} = product;
+    const {
+        productName,
+        image,
+        productDescription,
+        productPrice,
+        discountPrice,
+        specialPrice,
+        sellerName,
+    } = product;
+    const hasDiscount =
+        Number(discountPrice) > 0
+        && Number(specialPrice) < Number(productPrice);
 
     return (
         <>
@@ -30,11 +41,17 @@ function ProductViewModal({open, setOpen, product, isAvailable}) {
                                 <DialogTitle as="h1" className="lg:text-3xl sm:text-2xl text-xl font-semibold leading-6 text-gray-800 mb-4">
                                     {productName}
                                 </DialogTitle>
+                                <p className="mb-4 text-sm text-gray-500">
+                                    Sold by{" "}
+                                    <span className="font-semibold text-slate-700">
+                                        {sellerName || "Online Shop"}
+                                    </span>
+                                </p>
 
 
                                 <div className="space-y-2 text-gray-700 pb-4">
                                     <div className="flex items-center justify-between gap-2">
-                                        {specialPrice ? (
+                                        {hasDiscount ? (
                                             <div className="flex items-center gap-2">
                       <span className="text-gray-400 line-through">
                         ${Number(productPrice).toFixed(2)}

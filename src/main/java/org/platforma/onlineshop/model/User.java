@@ -37,10 +37,20 @@ public class User {
   @NotBlank
   private String email;
 
-  public User(String password, String email, String username) {
+  @Size(max = 100)
+  @NotBlank
+  private String firstName;
+
+  @Size(max = 100)
+  @NotBlank
+  private String lastName;
+
+  public User(String password, String email, String username, String firstName, String lastName) {
     this.password = password;
     this.email = email;
     this.username = username;
+    this.firstName = firstName;
+    this.lastName = lastName;
   }
 
   public Set<Role> getRoles() {

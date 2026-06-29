@@ -65,7 +65,9 @@ public class AuthServiceImpl implements AuthService {
             userDetails.getUsername(),
             roles,
             userDetails.getEmail(),
-            jwtCookie.getValue());
+            jwtCookie.getValue(),
+            userDetails.getFirstName(),
+            userDetails.getLastName());
 
     return new AuthenticationResult(loginResponse, jwtCookie);
   }
@@ -83,7 +85,9 @@ public class AuthServiceImpl implements AuthService {
         new User(
             passwordEncoder.encode(signupRequest.getPassword()),
             signupRequest.getEmail(),
-            signupRequest.getUsername());
+            signupRequest.getUsername(),
+                signupRequest.getFirstName(),
+                signupRequest.getLastName());
 
     Set<String> roles = signupRequest.getRoles();
     Set<Role> roleSet = new HashSet<>();
@@ -132,7 +136,14 @@ public class AuthServiceImpl implements AuthService {
         List<String> roles =
                 userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
         LoginResponse loginResponse =
-                new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
+                new LoginResponse(
+                        userDetails.getId(),
+                        userDetails.getUsername(),
+                        roles,
+                        userDetails.getEmail(),
+                        null,
+                        userDetails.getFirstName(),
+                        userDetails.getLastName());
 
         return loginResponse;
     }

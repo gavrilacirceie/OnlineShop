@@ -12,25 +12,23 @@ public class LoginResponse {
   private String username;
   private String email;
   private List<String> roles;
+  private String firstName;
+  private String lastName;
 
-  public LoginResponse(Long id, String token, String username, List<String> roles) {
-    this.id = id;
-    this.token = token;
-    this.username = username;
-    this.roles = roles;
-  }
-
-  public LoginResponse(Long id, String username, List<String> roles, String email, String token) {
+  public LoginResponse(
+      Long id,
+      String username,
+      List<String> roles,
+      String email,
+      String token,
+      String firstName,
+      String lastName) {
     this.id = id;
     this.token = token;
     this.username = username;
     this.roles = roles;
     this.email = email;
-  }
-
-  public LoginResponse(Long id, String username, List<String> roles) {
-    this.id = id;
-    this.username = username;
-    this.roles = roles;
+    this.firstName = firstName;
+    this.lastName = lastName;
   }
 }

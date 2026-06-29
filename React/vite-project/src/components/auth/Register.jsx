@@ -24,6 +24,8 @@ const Register = () => {
 
     const registerHandler = async (data) => {
         const sendData = {
+            firstName: data.firstName,
+            lastName: data.lastName,
             username: data.username,
             email: data.email,
             password: data.password,
@@ -58,6 +60,32 @@ const Register = () => {
                     {/* Form Body */}
                     <div className="px-8 py-8">
                         <div className="flex flex-col gap-4">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <InputField
+                                    label="First Name"
+                                    required
+                                    id="firstName"
+                                    type="text"
+                                    message="*First name is required"
+                                    placeholder="Enter your first name"
+                                    register={register}
+                                    errors={errors}
+                                    min={3}
+                                />
+
+                                <InputField
+                                    label="Last Name"
+                                    required
+                                    id="lastName"
+                                    type="text"
+                                    message="*Last name is required"
+                                    placeholder="Enter your last name"
+                                    register={register}
+                                    errors={errors}
+                                    min={3}
+                                />
+                            </div>
+
                             <InputField
                                 label="Username"
                                 required
@@ -125,4 +153,3 @@ const Register = () => {
 };
 
 export default Register;
-
