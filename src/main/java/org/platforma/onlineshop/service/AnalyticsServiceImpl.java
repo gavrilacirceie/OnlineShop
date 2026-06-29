@@ -8,23 +8,21 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
-    @Autowired
-    private ProductRepository productRepository;
+  @Autowired private ProductRepository productRepository;
 
-    @Autowired
-    private OrderRepository orderRepository;
+  @Autowired private OrderRepository orderRepository;
 
-    @Override
-    public AnalyticsResponse getAnalyticsData() {
-        AnalyticsResponse response = new AnalyticsResponse();
+  @Override
+  public AnalyticsResponse getAnalyticsData() {
+    AnalyticsResponse response = new AnalyticsResponse();
 
-        long productCount = productRepository.count();
-        long totalOrders = orderRepository.count();
-        Double totalRevenue = orderRepository.getTotalRevenue();
+    long productCount = productRepository.count();
+    long totalOrders = orderRepository.count();
+    Double totalRevenue = orderRepository.getTotalRevenue();
 
-        response.setProductCount(String.valueOf(productCount));
-        response.setTotalOrders(String.valueOf(totalOrders));
-        response.setTotalRevenue(String.valueOf(totalRevenue != null ? totalRevenue : 0));
-        return response;
-    }
+    response.setProductCount(String.valueOf(productCount));
+    response.setTotalOrders(String.valueOf(totalOrders));
+    response.setTotalRevenue(String.valueOf(totalRevenue != null ? totalRevenue : 0));
+    return response;
+  }
 }

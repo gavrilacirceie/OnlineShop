@@ -105,11 +105,12 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public OrderResponse getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+  public OrderResponse getAllOrders(
+      Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
     Sort sortByAndOrder =
-            sortOrder.equalsIgnoreCase("asc")
-                    ? Sort.by(Sort.Direction.ASC, sortBy)
-                    : Sort.by(Sort.Direction.DESC, sortBy);
+        sortOrder.equalsIgnoreCase("asc")
+            ? Sort.by(Sort.Direction.ASC, sortBy)
+            : Sort.by(Sort.Direction.DESC, sortBy);
     Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
     Page<Order> orderPage = orderRepository.findAll(pageable);
 
@@ -118,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
       throw new APIException("No orders found");
     }
     List<OrderDTO> orderDTOS =
-            orders.stream().map(category -> modelMapper.map(category, OrderDTO.class)).toList();
+        orders.stream().map(category -> modelMapper.map(category, OrderDTO.class)).toList();
 
     OrderResponse orderResponse = new OrderResponse();
     orderResponse.setContent(orderDTOS);

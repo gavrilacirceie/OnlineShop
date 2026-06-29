@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class AnalyticsController {
 
-    @Autowired
-    AnalyticsService analyticsService;
+  @Autowired AnalyticsService analyticsService;
 
-    @GetMapping("/admin/app/analytics")
-    public ResponseEntity<AnalyticsResponse> getAnalytics() {
-        AnalyticsResponse response = analyticsService.getAnalyticsData();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+  @GetMapping("/admin/app/analytics")
+  public ResponseEntity<AnalyticsResponse> getAnalytics() {
+    AnalyticsResponse response = analyticsService.getAnalyticsData();
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 }

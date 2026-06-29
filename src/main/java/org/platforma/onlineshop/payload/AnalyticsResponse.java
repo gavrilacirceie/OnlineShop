@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnalyticsResponse {
-    private String productCount;
-    private String totalRevenue;
-    private String totalOrders;
+  private String productCount;
+  private String totalRevenue;
+  private String totalOrders;
 }

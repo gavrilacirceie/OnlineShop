@@ -15,8 +15,8 @@ public interface OrderService {
       String pgStatus,
       String pgResponseMessage);
 
-    OrderResponse getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+  OrderResponse getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    @Transactional
-    OrderDTO updateOrder(Long orderId, String status);
+  @Transactional
+  OrderDTO updateOrder(Long orderId, String status);
 }

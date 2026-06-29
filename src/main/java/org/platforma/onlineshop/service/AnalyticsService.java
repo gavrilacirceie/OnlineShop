@@ -4,5 +4,5 @@ import org.platforma.onlineshop.payload.AnalyticsResponse;
 
 public interface AnalyticsService {
 
-    AnalyticsResponse getAnalyticsData();
+  AnalyticsResponse getAnalyticsData();
 }
