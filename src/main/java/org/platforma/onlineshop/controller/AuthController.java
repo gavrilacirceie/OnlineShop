@@ -65,6 +65,18 @@ public class AuthController {
     return ResponseEntity.ok().body(authService.getUserDetails(authentication));
   }
 
+  @PutMapping("/user")
+  public ResponseEntity<?> updateUserDetails(
+      @Valid @RequestBody ProfileUpdateRequest profileUpdateRequest,
+      Authentication authentication) {
+    AuthenticationResult response =
+        authService.updateUserDetails(profileUpdateRequest, authentication);
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.SET_COOKIE, String.valueOf(response.getJwtCookie()))
+        .body(response.getLoginResponse());
+  }
+
   @PostMapping("/signout")
   public ResponseEntity<?> signoutUser() {
     ResponseCookie cookie = jwtUtils.cleanJwtCookie();

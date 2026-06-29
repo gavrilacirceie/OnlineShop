@@ -22,4 +22,7 @@ public interface OrderService {
 
   OrderResponse getSellerOrders(
       Long sellerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+
+  OrderResponse getUserOrders(
+      String email, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 }

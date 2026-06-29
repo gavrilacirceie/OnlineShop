@@ -81,4 +81,15 @@ public class OrderController {
     return ResponseEntity.ok(orderService.getSellerOrders(
         authUtil.loggedInUserId(), pageNumber, pageSize, sortBy, sortOrder));
   }
+
+  @GetMapping("/orders/user")
+  public ResponseEntity<OrderResponse> getUserOrders(
+      @RequestParam(defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
+      @RequestParam(defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
+      @RequestParam(defaultValue = AppConstants.SORT_ORDERS_BY) String sortBy,
+      @RequestParam(defaultValue = AppConstants.SORT_DIR) String sortOrder) {
+    return ResponseEntity.ok(
+        orderService.getUserOrders(
+            authUtil.loggedInEmail(), pageNumber, pageSize, sortBy, sortOrder));
+  }
 }

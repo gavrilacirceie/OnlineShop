@@ -25,6 +25,8 @@ import Sellers from "./components/Admin/sellers/Sellers.jsx";
 import AdminProducts from "./components/Admin/products/AdminProducts.jsx";
 import Category from "./components/Admin/category/Category.jsx";
 import Orders from "./components/Admin/orders/Orders.jsx";
+import Profile from "./components/profile/Profile.jsx";
+import ProfileOrders from "./components/profile/ProfileOrders.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -45,6 +47,8 @@ function App() {
             <Route path="/cart" element={<Cart/>} />
             <Route path="/checkout" element={<ProtectedRoute><Checkout/></ProtectedRoute>} />
             <Route path="/order-confirm" element={<ProtectedRoute><PaymentConfirmation/></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/profile/orders" element={<ProtectedRoute><ProfileOrders /></ProtectedRoute>} />
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
             <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
 

@@ -16,4 +16,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
       value = "SELECT DISTINCT o FROM Order o JOIN o.orderItems oi WHERE oi.product.user.id = :sellerId",
       countQuery = "SELECT COUNT(DISTINCT o.id) FROM Order o JOIN o.orderItems oi WHERE oi.product.user.id = :sellerId")
   Page<Order> findOrdersBySellerId(Long sellerId, Pageable pageable);
+
+  Page<Order> findByEmail(String email, Pageable pageable);
 }

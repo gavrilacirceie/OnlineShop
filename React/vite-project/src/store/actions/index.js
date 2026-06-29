@@ -67,6 +67,25 @@ export const loadCurrentUser = () => async (dispatch) => {
     }
 };
 
+export const updateCurrentUserProfile =
+    (sendData, toast, setOpenProfileModal) => async (dispatch) => {
+        try {
+            dispatch({ type: "BTN_LOADER" });
+            const { data } = await api.put("/auth/user", sendData);
+            dispatch({ type: "LOGIN_USER", payload: data });
+            localStorage.setItem("auth", JSON.stringify(data));
+            toast.success("Profile updated successfully");
+            dispatch({ type: "IS_SUCCESS" });
+            setOpenProfileModal(false);
+        } catch (error) {
+            console.log(error);
+            dispatch({ type: "IS_ERROR", payload: error?.response?.data?.message || "Failed to update profile" });
+            toast.error(error?.response?.data?.message || "Failed to update profile");
+        } finally {
+            dispatch({ type: "BTN_LOADER_DONE" });
+        }
+    };
+
 export const addToCart = (data, qty = 1, toast) => (dispatch, getState) => {
     const { products } = getState().products;
     const getProduct = products.find(item => item.productId === data.productId);
@@ -268,6 +287,29 @@ export const placeCashOrder = (addressId, toast, navigate) => async (dispatch) =
         toast.error(error?.response?.data?.message || "Failed to place order");
     } finally {
         dispatch({ type: "BTN_LOADER_DONE" });
+    }
+};
+
+export const fetchUserOrders = (queryString) => async (dispatch) => {
+    try {
+        dispatch({ type: "IS_FETCHING" });
+        const { data } = await api.get(`/orders/user?${queryString}`);
+        dispatch({
+            type: "USER_ORDERS",
+            payload: data.content,
+            pageNumber: data.pageNumber,
+            pageSize: data.pageSize,
+            totalElements: data.totalElements,
+            totalPages: data.totalPages,
+            lastPage: data.lastPage,
+        });
+        dispatch({ type: "IS_SUCCESS" });
+    } catch (error) {
+        console.log(error);
+        dispatch({
+            type: "IS_ERROR",
+            payload: error?.response?.data?.message || "Failed to fetch your orders",
+        });
     }
 };
 

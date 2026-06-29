@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { IoChatbubbleEllipsesOutline, IoClose, IoSend } from "react-icons/io5";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import api from "../../api/api.js";
 
 const Chat = () => {
     const { user } = useSelector((state) => state.auth);
+    const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         { role: "bot", text: "👋 Hi! I'm your shop support assistant. How can I help you today?" },
@@ -12,12 +14,13 @@ const Chat = () => {
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
+    const allowedPaths = ["/products", "/profile/orders"];
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isTyping]);
 
-    if (!user || !user.id) return null;
+    if (!user || !user.id || !allowedPaths.includes(location.pathname)) return null;
 
     const sendMessage = async () => {
         const text = input.trim();
@@ -126,4 +129,3 @@ const Chat = () => {
 };
 
 export default Chat;
-

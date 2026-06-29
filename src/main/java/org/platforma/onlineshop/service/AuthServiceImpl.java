@@ -27,6 +27,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Service
 @Transactional
@@ -131,7 +133,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
     @Override
-    public LoginResponse getUserDetails(Authentication authentication) {
+  public LoginResponse getUserDetails(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles =
                 userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
@@ -146,6 +148,54 @@ public class AuthServiceImpl implements AuthService {
                         userDetails.getLastName());
 
         return loginResponse;
+    }
+
+    @Override
+    public AuthenticationResult updateUserDetails(
+            ProfileUpdateRequest profileUpdateRequest, Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user =
+                userRepository
+                        .findById(userDetails.getId())
+                        .orElseThrow(
+                                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        boolean usernameChanged =
+                !user.getUsername().equals(profileUpdateRequest.getUsername());
+        boolean emailChanged = !user.getEmail().equals(profileUpdateRequest.getEmail());
+
+        if (usernameChanged && userRepository.existsByUsername(profileUpdateRequest.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
+        }
+
+        if (emailChanged && userRepository.existsByEmail(profileUpdateRequest.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
+
+        user.setFirstName(profileUpdateRequest.getFirstName());
+        user.setLastName(profileUpdateRequest.getLastName());
+        user.setUsername(profileUpdateRequest.getUsername());
+        user.setEmail(profileUpdateRequest.getEmail());
+
+        User updatedUser = userRepository.save(user);
+        UserDetailsImpl updatedUserDetails = UserDetailsImpl.build(updatedUser);
+        ResponseCookie jwtCookie = jwtUtils.getResponseCookie(updatedUserDetails);
+        List<String> roles =
+                updatedUserDetails.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList();
+
+        LoginResponse loginResponse =
+                new LoginResponse(
+                        updatedUserDetails.getId(),
+                        updatedUserDetails.getUsername(),
+                        roles,
+                        updatedUserDetails.getEmail(),
+                        jwtCookie.getValue(),
+                        updatedUserDetails.getFirstName(),
+                        updatedUserDetails.getLastName());
+
+        return new AuthenticationResult(loginResponse, jwtCookie);
     }
 
     @Override

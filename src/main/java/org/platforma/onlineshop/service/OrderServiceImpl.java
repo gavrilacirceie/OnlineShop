@@ -60,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
     order.setDate(LocalDate.now());
     order.setTotalAmount(cart.getTotalPrice());
     order.setOrderStatus("Order Accepted");
+    order.setAddress(address);
 
     Payment payment = new Payment(paymentMethod, pgPaymentId, pgStatus, pgResponseMessage, pgName);
     payment.setOrder(order);
@@ -101,6 +102,7 @@ public class OrderServiceImpl implements OrderService {
     orderItems.forEach(
         orderItem -> orderDTO.getOrderItems().add(modelMapper.map(orderItem, OrderItemDTO.class)));
     orderDTO.setAddressId(addressId);
+    orderDTO.setAddress(modelMapper.map(address, AddressDTO.class));
     return orderDTO;
   }
 
@@ -177,6 +179,43 @@ public class OrderServiceImpl implements OrderService {
 
     OrderResponse response = new OrderResponse();
     response.setContent(orders);
+    response.setPageNumber(page.getNumber());
+    response.setPageSize(page.getSize());
+    response.setTotalElements(page.getTotalElements());
+    response.setTotalPages(page.getTotalPages());
+    response.setLastPage(page.isLast());
+    return response;
+  }
+
+  @Override
+  public OrderResponse getUserOrders(
+      String email, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    Sort sort =
+        sortOrder.equalsIgnoreCase("asc")
+            ? Sort.by(sortBy).ascending()
+            : Sort.by(sortBy).descending();
+    Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+    Page<Order> page = orderRepository.findByEmail(email, pageable);
+
+    List<Order> orders = page.getContent();
+    if (orders.isEmpty()) {
+      throw new APIException("No orders found");
+    }
+
+    List<OrderDTO> orderDTOS =
+        orders.stream()
+            .map(
+                order -> {
+                  OrderDTO dto = modelMapper.map(order, OrderDTO.class);
+                  if (order.getAddress() != null) {
+                    dto.setAddressId(order.getAddress().getId());
+                  }
+                  return dto;
+                })
+            .toList();
+
+    OrderResponse response = new OrderResponse();
+    response.setContent(orderDTOS);
     response.setPageNumber(page.getNumber());
     response.setPageSize(page.getSize());
     response.setTotalElements(page.getTotalElements());

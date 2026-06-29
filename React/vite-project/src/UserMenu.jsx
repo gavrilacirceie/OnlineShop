@@ -54,7 +54,7 @@ const UserMenu = () => {
                               onClick={handleClose}>
                         <BiUser className='text-xl'/>
                         <span className='font-bold text-[16px] mt-1'>
-                        {user?.username}
+                        {user?.firstName} {user?.lastName}
                     </span>
                     </MenuItem>
                 </Link>
