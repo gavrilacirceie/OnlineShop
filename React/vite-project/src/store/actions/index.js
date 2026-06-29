@@ -362,6 +362,50 @@ export const fetchAdminOrders = (queryString) => async (dispatch) => {
     }
 };
 
+export const fetchAdminSellers = (pageNumber = 0) => async (dispatch) => {
+    try {
+        dispatch({ type: "IS_FETCHING" });
+        const { data } = await api.get(`/auth/sellers?pageNumber=${pageNumber}`);
+
+        dispatch({
+            type: "FETCH_ADMIN_SELLERS",
+            payload: data.content,
+            pagination: {
+                pageNumber: data.pageNumber,
+                pageSize: data.pageSize,
+                totalElements: data.totalElements,
+                totalPages: data.totalPages,
+                lastPage: data.lastPage,
+            },
+        });
+        dispatch({ type: "IS_SUCCESS" });
+        return true;
+    } catch (error) {
+        dispatch({
+            type: "IS_ERROR",
+            payload: error?.response?.data?.message || "Failed to fetch sellers",
+        });
+        return false;
+    }
+};
+
+export const createAdminSeller = (seller) => async () => {
+    try {
+        await api.post("/auth/signup", {
+            username: seller.username,
+            email: seller.email,
+            password: seller.password,
+            roles: ["seller"],
+        });
+        toast.success("Seller created successfully");
+        return true;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Failed to create seller");
+        return false;
+    }
+};
+
 export const updateAdminOrderStatus = (orderId, status) => async (dispatch) => {
     try {
         const { data } = await api.put(`/admin/orders/${orderId}/status`, { status });

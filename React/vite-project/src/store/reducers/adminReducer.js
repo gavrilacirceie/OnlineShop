@@ -28,6 +28,14 @@ const initialState = {
         totalPages: 0,
         lastPage: true,
     },
+    sellers: [],
+    sellerPagination: {
+        pageNumber: 0,
+        pageSize: 10,
+        totalElements: 0,
+        totalPages: 0,
+        lastPage: true,
+    },
 };
 
 export const adminReducer = (state = initialState, action) => {
@@ -98,6 +106,12 @@ export const adminReducer = (state = initialState, action) => {
                 ...state,
                 categories: action.payload,
                 categoryPagination: action.pagination,
+            };
+        case "FETCH_ADMIN_SELLERS":
+            return {
+                ...state,
+                sellers: action.payload,
+                sellerPagination: action.pagination,
             };
         case "UPDATE_ADMIN_CATEGORY":
             return {
