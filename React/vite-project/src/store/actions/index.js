@@ -10,7 +10,7 @@ export const fetchProducts = (queryString) => async dispatch => {
             payload: data.content,
             pageNumber: data.pageNumber,
             pageSize: data.pageSize,
-            totalElements: data.totalElements,
+            totalElements: data.totalItems,
             totalPages: data.totalPages,
             lastPage: data.lastPage,
         });
@@ -43,7 +43,11 @@ export const fetchCategories = (queryString) => async dispatch => {
 
 export const clearAuth = () => (dispatch) => {
     dispatch({ type: "LOG_OUT" });
+    dispatch({ type: "CLEAR_CART" });
     localStorage.removeItem("auth");
+    localStorage.removeItem("cartItems");
+    localStorage.removeItem("CHECKOUT_ADDRESS");
+    localStorage.removeItem("client-secret");
 };
 
 export const logOutUser = (navigate) => async (dispatch) => {
@@ -62,6 +66,7 @@ export const loadCurrentUser = () => async (dispatch) => {
         const { data } = await api.get("/auth/user");
         dispatch({ type: "LOGIN_USER", payload: data });
         localStorage.setItem("auth", JSON.stringify(data));
+        await dispatch(getUserCart());
     } catch {
         dispatch(clearAuth());
     }
@@ -151,6 +156,7 @@ export const authenticateSignInUser
         const { data } = await api.post("/auth/signin", sendData, { withCredentials: true });
         dispatch({ type: "LOGIN_USER", payload: data });
         localStorage.setItem("auth", JSON.stringify(data));
+        await dispatch(getUserCart());
         reset();
         toast.success("Login Success");
         navigate("/");
@@ -313,35 +319,45 @@ export const fetchUserOrders = (queryString) => async (dispatch) => {
     }
 };
 
-export const createUserCart = (sendCartItems) => async (dispatch) => {
+export const createUserCart = (sendCartItems, shouldSetLoading = true) => async (dispatch) => {
     try {
-        dispatch({ type: "IS_FETCHING" });
+        if (shouldSetLoading) {
+            dispatch({ type: "IS_FETCHING" });
+        }
         await api.post('/cart/create', sendCartItems);
-        await dispatch(getUserCart());
+        await dispatch(getUserCart(shouldSetLoading));
+        return true;
     } catch (error) {
         console.log(error);
         dispatch({
             type: "IS_ERROR",
             payload: error?.response?.data?.message || "Failed to create cart items",
         });
+        return false;
     }
 };
 
-export const getUserCart = () => async (dispatch, getState) => {
+export const getUserCart = (shouldSetLoading = true) => async (dispatch, getState) => {
     try {
-        dispatch({ type: "IS_FETCHING" });
+        if (shouldSetLoading) {
+            dispatch({ type: "IS_FETCHING" });
+        }
         const { data } = await api.get('/carts/users/cart');
 
         dispatch({
             type: "GET_USER_CART_PRODUCTS",
-            payload: data.products,
+            payload: data.products || [],
             totalPrice: data.totalPrice,
             cartId: data.cartId
         })
         localStorage.setItem("cartItems", JSON.stringify(getState().carts.cart));
-        dispatch({ type: "IS_SUCCESS" });
+        if (shouldSetLoading) {
+            dispatch({ type: "IS_SUCCESS" });
+        }
     } catch (error) {
         console.log(error);
+        dispatch({ type: "CLEAR_CART" });
+        localStorage.removeItem("cartItems");
         dispatch({
             type: "IS_ERROR",
             payload: error?.response?.data?.message || "Failed to fetch cart items",
