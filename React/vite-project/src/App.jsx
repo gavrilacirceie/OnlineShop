@@ -24,6 +24,7 @@ import Dashboard from "./components/Admin/dashboard/Dashboard.jsx";
 import Sellers from "./components/Admin/sellers/Sellers.jsx";
 import AdminProducts from "./components/Admin/products/AdminProducts.jsx";
 import Category from "./components/Admin/category/Category.jsx";
+import Orders from "./components/Admin/orders/Orders.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -52,7 +53,7 @@ function App() {
                     <Route path='' element={<Dashboard />} />
                     <Route path='products' element={<AdminProducts />} />
                     <Route path='sellers' element={<Sellers />} />
-                    {/*<Route path='orders' element={<Orders />} />*/}
+                    <Route path='orders' element={<Orders />} />
                     <Route path='categories' element={<Category />} />
                 </Route>
             </Route>

@@ -2,10 +2,12 @@ package org.platforma.onlineshop.controller;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import jakarta.validation.Valid;
 import org.platforma.onlineshop.config.AppConstants;
 import org.platforma.onlineshop.payload.OrderDTO;
 import org.platforma.onlineshop.payload.OrderRequestDTO;
 import org.platforma.onlineshop.payload.OrderResponse;
+import org.platforma.onlineshop.payload.OrderStatusUpdateDto;
 import org.platforma.onlineshop.payload.StripePaymentDTO;
 import org.platforma.onlineshop.service.OrderService;
 import org.platforma.onlineshop.service.StripeService;
@@ -63,5 +65,12 @@ public class OrderController {
   ) {
       OrderResponse orderResponse = orderService.getAllOrders(pageNumber, pageSize, sortBy, sortOrder);
       return new ResponseEntity<OrderResponse>(orderResponse, HttpStatus.OK);
+  }
+
+  @PutMapping("/admin/orders/{orderId}/status")
+  public ResponseEntity<OrderDTO> updateOrderStatus(
+      @PathVariable Long orderId, @Valid @RequestBody OrderStatusUpdateDto orderStatusUpdateDto) {
+    OrderDTO order = orderService.updateOrder(orderId, orderStatusUpdateDto.getStatus());
+    return new ResponseEntity<>(order, HttpStatus.OK);
   }
 }

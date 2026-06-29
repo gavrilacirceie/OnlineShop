@@ -308,7 +308,7 @@ export const getUserCart = () => async (dispatch, getState) => {
 };
 
 export const createStripePaymentSecret
-    = (sendData) => async (dispatch, getState) => {
+    = (sendData) => async (dispatch) => {
     try {
         dispatch({ type: "IS_FETCHING" });
         const { data } = await api.post("/order/stripe-client-secret", sendData);
@@ -321,7 +321,7 @@ export const createStripePaymentSecret
     }
 };
 
-export const analyticsAction = () => async (dispatch, getState) => {
+export const analyticsAction = () => async (dispatch) => {
     try {
         dispatch({ type: "IS_FETCHING"});
         const { data } = await api.get('/admin/app/analytics');
@@ -338,8 +338,136 @@ export const analyticsAction = () => async (dispatch, getState) => {
     }
 };
 
+export const fetchAdminOrders = (queryString) => async (dispatch) => {
+    try {
+        dispatch({ type: "IS_FETCHING" });
+        const { data } = await api.get(`/admin/orders?${queryString}`);
+        dispatch({
+            type: "FETCH_ADMIN_ORDERS",
+            payload: data.content,
+            pagination: {
+                pageNumber: data.pageNumber,
+                pageSize: data.pageSize,
+                totalElements: data.totalElements,
+                totalPages: data.totalPages,
+                lastPage: data.lastPage,
+            },
+        });
+        dispatch({ type: "IS_SUCCESS" });
+    } catch (error) {
+        dispatch({
+            type: "IS_ERROR",
+            payload: error?.response?.data?.message || "Failed to fetch orders",
+        });
+    }
+};
+
+export const updateAdminOrderStatus = (orderId, status) => async (dispatch) => {
+    try {
+        const { data } = await api.put(`/admin/orders/${orderId}/status`, { status });
+        dispatch({
+            type: "UPDATE_ADMIN_ORDER_STATUS",
+            payload: data,
+        });
+        toast.success(`Order #${orderId} status updated`);
+        return true;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Failed to update order status");
+        return false;
+    }
+};
+
+export const fetchAdminProducts = (queryString) => async (dispatch) => {
+    try {
+        dispatch({ type: "IS_FETCHING" });
+        const { data } = await api.get(`/public/products?${queryString}`);
+        dispatch({
+            type: "FETCH_ADMIN_PRODUCTS",
+            payload: data.content,
+            pagination: {
+                pageNumber: data.pageNumber,
+                pageSize: data.pageSize,
+                totalElements: data.totalItems,
+                totalPages: data.totalPages,
+                lastPage: data.lastPage,
+            },
+        });
+        dispatch({ type: "IS_SUCCESS" });
+    } catch (error) {
+        dispatch({
+            type: "IS_ERROR",
+            payload: error?.response?.data?.message || "Failed to fetch products",
+        });
+    }
+};
+
+export const createAdminProduct = (categoryId, product, image) => async () => {
+    try {
+        const { data } = await api.post(
+            `/admin/categories/${categoryId}/product`,
+            product,
+        );
+
+        if (image) {
+            const imageData = new FormData();
+            imageData.append("image", image);
+
+            try {
+                await api.put(`/products/${data.productId}/image`, imageData);
+            } catch (imageError) {
+                console.log(imageError);
+                toast.error(
+                    imageError?.response?.data?.message
+                    || "Product created, but its image could not be uploaded",
+                );
+                return true;
+            }
+        }
+
+        toast.success("Product created successfully");
+        return true;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Failed to create product");
+        return false;
+    }
+};
+
+export const updateAdminProduct = (productId, product) => async (dispatch) => {
+    try {
+        const { data } = await api.put(`/public/products/${productId}`, product);
+        dispatch({
+            type: "UPDATE_ADMIN_PRODUCT",
+            payload: data,
+        });
+        toast.success(`Product #${productId} updated`);
+        return true;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Failed to update product");
+        return false;
+    }
+};
+
+export const deleteAdminProduct = (productId) => async (dispatch) => {
+    try {
+        await api.delete(`/admin/products/${productId}`);
+        dispatch({
+            type: "DELETE_ADMIN_PRODUCT",
+            payload: productId,
+        });
+        toast.success(`Product #${productId} deleted`);
+        return true;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Failed to delete product");
+        return false;
+    }
+};
+
 export const stripePaymentConfirmation
-    = (sendData, setErrorMesssage, setLoadng, toast) => async (dispatch, getState) => {
+    = (sendData, setErrorMesssage, setLoadng, toast) => async (dispatch) => {
     try {
         const response  = await api.post("/order/users/payments/online", sendData);
         if (response.data) {
@@ -352,8 +480,7 @@ export const stripePaymentConfirmation
         } else {
             setErrorMesssage("Payment Failed. Please try again.");
         }
-    } catch (error) {
+    } catch {
         setErrorMesssage("Payment Failed. Please try again.");
     }
 };
-

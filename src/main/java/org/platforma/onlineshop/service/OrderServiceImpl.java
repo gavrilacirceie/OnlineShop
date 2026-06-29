@@ -3,6 +3,7 @@ package org.platforma.onlineshop.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.modelmapper.ModelMapper;
 import org.platforma.onlineshop.exceptions.APIException;
 import org.platforma.onlineshop.exceptions.ResourceNotFoundException;
@@ -18,6 +19,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+  private static final Map<String, String> ALLOWED_ORDER_STATUSES =
+      Map.of(
+          "pending", "Pending",
+          "processing", "Processing",
+          "shipped", "Shipped",
+          "delivered", "Delivered",
+          "cancelled", "Cancelled",
+          "accepted", "Accepted");
+
   @Autowired ModelMapper modelMapper;
   @Autowired CartService cartService;
   @Autowired CartRepository cartRepository;
@@ -119,5 +129,27 @@ public class OrderServiceImpl implements OrderService {
     orderResponse.setLastPage(orderPage.isLast());
 
     return orderResponse;
+  }
+
+  @Override
+  public OrderDTO updateOrder(Long orderId, String status) {
+    Order order =
+        orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+
+    String updatedStatus = ALLOWED_ORDER_STATUSES.get(status.trim().toLowerCase());
+    if (updatedStatus == null) {
+      throw new APIException(
+          "Invalid order status. Allowed values: Pending, Processing, Shipped, Delivered, Cancelled, Accepted");
+    }
+
+    order.setOrderStatus(updatedStatus);
+    Order savedOrder = orderRepository.save(order);
+    OrderDTO orderDTO = modelMapper.map(savedOrder, OrderDTO.class);
+    if (savedOrder.getAddress() != null) {
+      orderDTO.setAddressId(savedOrder.getAddress().getId());
+    }
+    return orderDTO;
   }
 }
