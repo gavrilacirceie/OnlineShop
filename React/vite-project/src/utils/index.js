@@ -15,7 +15,6 @@ export const adminNavigation = [
 ];
 
 export const sellerNavigation = [
-    { name: "Dashboard", href: "/seller", icon: FaTachometerAlt },
     { name: "Products", href: "/seller/products", icon: FaBox },
     { name: "Orders", href: "/seller/orders", icon: FaClipboardList },
 ];

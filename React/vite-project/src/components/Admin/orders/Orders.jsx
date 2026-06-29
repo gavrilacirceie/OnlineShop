@@ -52,7 +52,7 @@ const formatDate = (date) => {
     }).format(new Date(`${date}T00:00:00`));
 };
 
-const Orders = () => {
+const Orders = ({ scope = "admin" }) => {
     const dispatch = useDispatch();
     const [searchParams, setSearchParams] = useSearchParams();
     const [expandedOrderId, setExpandedOrderId] = useState(null);
@@ -73,8 +73,8 @@ const Orders = () => {
             sortOrder,
         });
 
-        dispatch(fetchAdminOrders(query.toString()));
-    }, [dispatch, page, sortBy, sortOrder]);
+        dispatch(fetchAdminOrders(query.toString(), scope));
+    }, [dispatch, page, scope, sortBy, sortOrder]);
 
     const updateSort = (event) => {
         const [nextSortBy, nextSortOrder] = event.target.value.split(":");
@@ -153,7 +153,9 @@ const Orders = () => {
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h2 className="font-bold text-slate-900">All orders</h2>
+                        <h2 className="font-bold text-slate-900">
+                            {scope === "seller" ? "Orders containing your products" : "All orders"}
+                        </h2>
                         <p className="text-sm text-slate-500">
                             Select an order to view its products.
                         </p>
@@ -243,7 +245,7 @@ const Orders = () => {
                                                             onChange={(event) =>
                                                                 handleStatusChange(order.id, event.target.value)
                                                             }
-                                                            disabled={updatingOrderId === order.id}
+                                                            disabled={scope === "seller" || updatingOrderId === order.id}
                                                             aria-label={`Status for order ${order.id}`}
                                                             className={`rounded-lg border-0 px-2.5 py-1.5 text-xs font-semibold ring-1 ring-inset outline-none transition focus:ring-2 focus:ring-blue-500 disabled:cursor-wait disabled:opacity-60 ${statusClasses[statusKey] || "bg-slate-100 text-slate-700 ring-slate-500/20"}`}
                                                         >

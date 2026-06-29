@@ -338,10 +338,10 @@ export const analyticsAction = () => async (dispatch) => {
     }
 };
 
-export const fetchAdminOrders = (queryString) => async (dispatch) => {
+export const fetchAdminOrders = (queryString, scope = "admin") => async (dispatch) => {
     try {
         dispatch({ type: "IS_FETCHING" });
-        const { data } = await api.get(`/admin/orders?${queryString}`);
+        const { data } = await api.get(`/${scope}/orders?${queryString}`);
         dispatch({
             type: "FETCH_ADMIN_ORDERS",
             payload: data.content,
@@ -422,10 +422,11 @@ export const updateAdminOrderStatus = (orderId, status) => async (dispatch) => {
     }
 };
 
-export const fetchAdminProducts = (queryString) => async (dispatch) => {
+export const fetchAdminProducts = (queryString, scope = "admin") => async (dispatch) => {
     try {
         dispatch({ type: "IS_FETCHING" });
-        const { data } = await api.get(`/public/products?${queryString}`);
+        const path = scope === "seller" ? "/seller/products" : "/public/products";
+        const { data } = await api.get(`${path}?${queryString}`);
         dispatch({
             type: "FETCH_ADMIN_PRODUCTS",
             payload: data.content,
@@ -446,10 +447,10 @@ export const fetchAdminProducts = (queryString) => async (dispatch) => {
     }
 };
 
-export const createAdminProduct = (categoryId, product, image) => async () => {
+export const createAdminProduct = (categoryId, product, image, scope = "admin") => async () => {
     try {
         const { data } = await api.post(
-            `/admin/categories/${categoryId}/product`,
+            `/${scope}/categories/${categoryId}/product`,
             product,
         );
 
@@ -458,7 +459,10 @@ export const createAdminProduct = (categoryId, product, image) => async () => {
             imageData.append("image", image);
 
             try {
-                await api.put(`/products/${data.productId}/image`, imageData);
+                const imagePath = scope === "seller"
+                    ? `/seller/products/${data.productId}/image`
+                    : `/products/${data.productId}/image`;
+                await api.put(imagePath, imageData);
             } catch (imageError) {
                 console.log(imageError);
                 toast.error(
@@ -478,9 +482,12 @@ export const createAdminProduct = (categoryId, product, image) => async () => {
     }
 };
 
-export const updateAdminProduct = (productId, product) => async (dispatch) => {
+export const updateAdminProduct = (productId, product, scope = "admin") => async (dispatch) => {
     try {
-        const { data } = await api.put(`/public/products/${productId}`, product);
+        const path = scope === "seller"
+            ? `/seller/products/${productId}`
+            : `/public/products/${productId}`;
+        const { data } = await api.put(path, product);
         dispatch({
             type: "UPDATE_ADMIN_PRODUCT",
             payload: data,
@@ -494,9 +501,9 @@ export const updateAdminProduct = (productId, product) => async (dispatch) => {
     }
 };
 
-export const deleteAdminProduct = (productId) => async (dispatch) => {
+export const deleteAdminProduct = (productId, scope = "admin") => async (dispatch) => {
     try {
-        await api.delete(`/admin/products/${productId}`);
+        await api.delete(`/${scope}/products/${productId}`);
         dispatch({
             type: "DELETE_ADMIN_PRODUCT",
             payload: productId,

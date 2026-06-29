@@ -38,7 +38,7 @@ const emptyProduct = {
     discountPrice: 0,
 };
 
-const AdminProducts = () => {
+const AdminProducts = ({ scope = "admin" }) => {
     const dispatch = useDispatch();
     const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState(searchParams.get("keyword") || "");
@@ -69,8 +69,8 @@ const AdminProducts = () => {
         });
 
         if (keyword) query.set("keyword", keyword);
-        dispatch(fetchAdminProducts(query.toString()));
-    }, [dispatch, keyword, page, sortBy, sortOrder]);
+        dispatch(fetchAdminProducts(query.toString(), scope));
+    }, [dispatch, keyword, page, scope, sortBy, sortOrder]);
 
     useEffect(() => {
         dispatch(fetchCategories("pageNumber=0&pageSize=100&sortBy=categoryName&sortOrder=asc"));
@@ -149,7 +149,7 @@ const AdminProducts = () => {
 
         setIsCreating(true);
         const wasCreated = await dispatch(
-            createAdminProduct(newProduct.categoryId, payload, newProductImage),
+            createAdminProduct(newProduct.categoryId, payload, newProductImage, scope),
         );
         setIsCreating(false);
 
@@ -162,7 +162,7 @@ const AdminProducts = () => {
                 sortOrder,
             });
             if (keyword) query.set("keyword", keyword);
-            dispatch(fetchAdminProducts(query.toString()));
+            dispatch(fetchAdminProducts(query.toString(), scope));
         }
     };
 
@@ -185,7 +185,7 @@ const AdminProducts = () => {
 
         setSavingProductId(product.productId);
         const wasUpdated = await dispatch(
-            updateAdminProduct(product.productId, payload),
+            updateAdminProduct(product.productId, payload, scope),
         );
         setSavingProductId(null);
 
@@ -199,7 +199,7 @@ const AdminProducts = () => {
         if (!confirmed) return;
 
         setDeletingProductId(product.productId);
-        const wasDeleted = await dispatch(deleteAdminProduct(product.productId));
+        const wasDeleted = await dispatch(deleteAdminProduct(product.productId, scope));
         setDeletingProductId(null);
 
         if (wasDeleted && products.length === 1 && page > 1) {

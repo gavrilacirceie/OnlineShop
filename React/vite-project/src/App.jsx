@@ -1,7 +1,7 @@
 import './App.css'
 import './components/product/Products.jsx'
 import Products from "./components/product/Products.jsx";
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import Home from "./components/home/home.jsx";
 import Navbar from "./components/common/Navbar.jsx";
 import About from "./components/about/About.jsx";
@@ -55,6 +55,13 @@ function App() {
                     <Route path='sellers' element={<Sellers />} />
                     <Route path='orders' element={<Orders />} />
                     <Route path='categories' element={<Category />} />
+                </Route>
+            </Route>
+            <Route path='/' element={<PrivateRoute sellerOnly />}>
+                <Route path='/seller' element={<AdminLayout />}>
+                    <Route index element={<Navigate to="products" replace />} />
+                    <Route path='products' element={<AdminProducts scope="seller" />} />
+                    <Route path='orders' element={<Orders scope="seller" />} />
                 </Route>
             </Route>
         </Routes>

@@ -71,4 +71,14 @@ public class OrderController {
     OrderDTO order = orderService.updateOrder(orderId, orderStatusUpdateDto.getStatus());
     return new ResponseEntity<>(order, HttpStatus.OK);
   }
+
+  @GetMapping("/seller/orders")
+  public ResponseEntity<OrderResponse> getSellerOrders(
+      @RequestParam(defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
+      @RequestParam(defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
+      @RequestParam(defaultValue = AppConstants.SORT_ORDERS_BY) String sortBy,
+      @RequestParam(defaultValue = AppConstants.SORT_DIR) String sortOrder) {
+    return ResponseEntity.ok(orderService.getSellerOrders(
+        authUtil.loggedInUserId(), pageNumber, pageSize, sortBy, sortOrder));
+  }
 }

@@ -19,4 +19,7 @@ public interface OrderService {
 
   @Transactional
   OrderDTO updateOrder(Long orderId, String status);
+
+  OrderResponse getSellerOrders(
+      Long sellerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 }

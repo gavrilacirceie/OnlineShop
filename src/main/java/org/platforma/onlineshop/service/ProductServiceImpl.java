@@ -9,12 +9,14 @@ import org.platforma.onlineshop.exceptions.ResourceNotFoundException;
 import org.platforma.onlineshop.model.Cart;
 import org.platforma.onlineshop.model.Category;
 import org.platforma.onlineshop.model.Product;
+import org.platforma.onlineshop.model.User;
 import org.platforma.onlineshop.payload.CartDTO;
 import org.platforma.onlineshop.payload.ProductDTO;
 import org.platforma.onlineshop.payload.ProductResponse;
 import org.platforma.onlineshop.repositories.CartRepository;
 import org.platforma.onlineshop.repositories.CategoryRepository;
 import org.platforma.onlineshop.repositories.ProductRepository;
+import org.platforma.onlineshop.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -44,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
 
   @Autowired private CartRepository cartRepository;
   @Autowired private CartService cartService;
+  @Autowired private UserRepository userRepository;
 
   public ProductServiceImpl(CategoryRepository categoryRepository) {
     this.categoryRepository = categoryRepository;
@@ -51,6 +54,11 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public ProductDTO createProduct(Long categoryId, ProductDTO productDTO) {
+    return createProduct(categoryId, productDTO, null);
+  }
+
+  private ProductDTO createProduct(
+      Long categoryId, ProductDTO productDTO, User seller) {
     boolean isProductNotFound = true;
     Product product = modelMapper.map(productDTO, Product.class);
     Category category =
@@ -67,6 +75,7 @@ public class ProductServiceImpl implements ProductService {
     }
     if (isProductNotFound) {
       product.setCategory(category);
+      product.setUser(seller);
       product.setImage("default.png");
       double specialPrice =
           product.getProductPrice()
@@ -245,5 +254,55 @@ public class ProductServiceImpl implements ProductService {
     Product savedProduct = productRepository.save(productFromDb);
 
     return modelMapper.map(savedProduct, ProductDTO.class);
+  }
+
+  @Override
+  public ProductDTO createSellerProduct(Long sellerId, Long categoryId, ProductDTO productDTO) {
+    User seller = userRepository.findById(sellerId)
+        .orElseThrow(() -> new ResourceNotFoundException("User", "id", sellerId));
+    return createProduct(categoryId, productDTO, seller);
+  }
+
+  @Override
+  public ProductResponse getSellerProducts(
+      Long sellerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
+      String keyword) {
+    User seller = userRepository.findById(sellerId)
+        .orElseThrow(() -> new ResourceNotFoundException("User", "id", sellerId));
+    Sort sort = sortOrder.equalsIgnoreCase("asc")
+        ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+    Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+    Page<Product> page = keyword == null || keyword.isBlank()
+        ? productRepository.findByUser(seller, pageable)
+        : productRepository.findByUserAndProductNameContainingIgnoreCase(seller, keyword, pageable);
+    return getProductResponse(page.getContent(), page);
+  }
+
+  private Product requireSellerProduct(Long sellerId, Long productId) {
+    Product product = productRepository.findById(productId)
+        .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+    if (product.getUser() == null || !product.getUser().getId().equals(sellerId)) {
+      throw new APIException("You can only manage your own products");
+    }
+    return product;
+  }
+
+  @Override
+  public ProductDTO updateSellerProduct(Long sellerId, Long productId, ProductDTO productDTO) {
+    requireSellerProduct(sellerId, productId);
+    return updateProduct(productDTO, productId);
+  }
+
+  @Override
+  public ProductDTO deleteSellerProduct(Long sellerId, Long productId) {
+    requireSellerProduct(sellerId, productId);
+    return deleteProduct(productId);
+  }
+
+  @Override
+  public ProductDTO updateSellerProductImage(Long sellerId, Long productId, MultipartFile image)
+      throws IOException {
+    requireSellerProduct(sellerId, productId);
+    return updateProductImage(productId, image);
   }
 }
