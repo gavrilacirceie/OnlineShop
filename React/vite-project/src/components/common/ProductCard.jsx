@@ -51,15 +51,15 @@ const ProductCard = ({productId, productName, image, productDescription, quantit
                     {hasDiscount ? (
                         <div className="flex flex-col">
                             <span className="text-gray-400 line-through text-sm">
-                                ${Number(productPrice).toFixed(2)}
+                                {Number(productPrice).toFixed(2)} RON
                             </span>
                             <span className="text-xl font-bold text-slate-700">
-                                ${Number(specialPrice).toFixed(2)}
+                                {Number(specialPrice).toFixed(2)} RON
                             </span>
                         </div>
                     ) : (
                         <span className="text-xl font-bold text-slate-700">
-                            ${Number(productPrice).toFixed(2)}
+                            {Number(productPrice).toFixed(2)} RON
                         </span>
                     )}
                     <button

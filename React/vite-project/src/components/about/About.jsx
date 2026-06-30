@@ -58,7 +58,7 @@ const About = () => {
                             </span>
                         </h1>
                         <p className="text-gray-400 text-lg max-w-2xl">
-                            Welcome to E-Shop — your go-to destination for quality products at unbeatable prices.
+                            Welcome to Online Shop your go-to destination for quality products at unbeatable prices.
                             We're passionate about connecting people with the things they love, all in one seamless platform.
                         </p>
                     </div>

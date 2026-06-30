@@ -5,29 +5,29 @@ const contactInfo = [
     {
         icon: FaPhone,
         title: "Phone",
-        detail: "+1 (555) 123-4567",
-        subtitle: "Mon-Fri, 9am-6pm",
+        detail: "0772594123",
+        subtitle: "Mon-Fri, 09-18",
         color: "from-emerald-400 to-teal-500",
     },
     {
         icon: FaEnvelope,
         title: "Email",
-        detail: "support@eshop.com",
+        detail: "support@onlineshop.com",
         subtitle: "We reply within 24h",
         color: "from-blue-400 to-indigo-500",
     },
     {
         icon: FaMapMarkerAlt,
         title: "Address",
-        detail: "123 Commerce Street",
+        detail: "Strada Ciresilor",
         subtitle: "Bucharest, Romania",
         color: "from-amber-400 to-orange-500",
     },
     {
         icon: FaClock,
         title: "Working Hours",
-        detail: "Mon - Fri: 9AM - 6PM",
-        subtitle: "Sat: 10AM - 2PM",
+        detail: "Mon - Fri: 09 - 18",
+        subtitle: "Sat: 10 - 14",
         color: "from-rose-400 to-pink-500",
     },
 ];
@@ -204,19 +204,10 @@ const Contact = () => {
                                             </div>
                                             <div>
                                                 <p className="text-sm text-gray-400">Call us at</p>
-                                                <p className="font-semibold">+1 (555) 123-4567</p>
+                                                <p className="font-semibold">0772594123</p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
-                                                <FaMapMarkerAlt className="text-amber-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-gray-400">Visit us at</p>
-                                                <p className="font-semibold">123 Commerce St, Bucharest</p>
-                                            </div>
-                                        </div>
                                     </div>
 
                                     <div className="pt-4 border-t border-white/10">
