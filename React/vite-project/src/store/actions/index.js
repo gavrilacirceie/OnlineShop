@@ -319,13 +319,11 @@ export const fetchUserOrders = (queryString) => async (dispatch) => {
     }
 };
 
-export const createUserCart = (sendCartItems, shouldSetLoading = true) => async (dispatch) => {
+export const createUserCart = (sendCartItems) => async (dispatch) => {
     try {
-        if (shouldSetLoading) {
-            dispatch({ type: "IS_FETCHING" });
-        }
+        dispatch({ type: "IS_FETCHING" });
         await api.post('/cart/create', sendCartItems);
-        await dispatch(getUserCart(shouldSetLoading));
+        await dispatch(getUserCart());
         return true;
     } catch (error) {
         console.log(error);
@@ -337,11 +335,9 @@ export const createUserCart = (sendCartItems, shouldSetLoading = true) => async 
     }
 };
 
-export const getUserCart = (shouldSetLoading = true) => async (dispatch, getState) => {
+export const getUserCart = () => async (dispatch, getState) => {
     try {
-        if (shouldSetLoading) {
-            dispatch({ type: "IS_FETCHING" });
-        }
+        dispatch({ type: "IS_FETCHING" });
         const { data } = await api.get('/carts/users/cart');
 
         dispatch({
@@ -351,16 +347,14 @@ export const getUserCart = (shouldSetLoading = true) => async (dispatch, getStat
             cartId: data.cartId
         })
         localStorage.setItem("cartItems", JSON.stringify(getState().carts.cart));
-        if (shouldSetLoading) {
-            dispatch({ type: "IS_SUCCESS" });
-        }
+        dispatch({ type: "IS_SUCCESS" });
     } catch (error) {
         console.log(error);
         dispatch({ type: "CLEAR_CART" });
         localStorage.removeItem("cartItems");
         dispatch({
             type: "IS_ERROR",
-            payload: error?.response?.data?.message || "Failed to fetch cart items",
+            payload: error?.response?.data?.message || "Failed to fetch product items",
         });
     }
 };

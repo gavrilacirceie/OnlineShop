@@ -159,23 +159,34 @@ public class OrderServiceImpl implements OrderService {
   @Override
   public OrderResponse getSellerOrders(
       Long sellerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-    Sort sort = sortOrder.equalsIgnoreCase("asc")
-        ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-    Page<Order> page = orderRepository.findOrdersBySellerId(
-        sellerId, PageRequest.of(pageNumber, pageSize, sort));
+    Sort sort =
+        sortOrder.equalsIgnoreCase("asc")
+            ? Sort.by(sortBy).ascending()
+            : Sort.by(sortBy).descending();
+    Page<Order> page =
+        orderRepository.findOrdersBySellerId(sellerId, PageRequest.of(pageNumber, pageSize, sort));
 
-    List<OrderDTO> orders = page.getContent().stream().map(order -> {
-      OrderDTO dto = modelMapper.map(order, OrderDTO.class);
-      List<OrderItemDTO> sellerItems = order.getOrderItems().stream()
-          .filter(item -> item.getProduct().getUser() != null
-              && item.getProduct().getUser().getId().equals(sellerId))
-          .map(item -> modelMapper.map(item, OrderItemDTO.class))
-          .toList();
-      dto.setOrderItems(new ArrayList<>(sellerItems));
-      dto.setTotalAmount(sellerItems.stream()
-          .mapToDouble(item -> item.getOrderedProductPrice() * item.getQuantity()).sum());
-      return dto;
-    }).toList();
+    List<OrderDTO> orders =
+        page.getContent().stream()
+            .map(
+                order -> {
+                  OrderDTO dto = modelMapper.map(order, OrderDTO.class);
+                  List<OrderItemDTO> sellerItems =
+                      order.getOrderItems().stream()
+                          .filter(
+                              item ->
+                                  item.getProduct().getUser() != null
+                                      && item.getProduct().getUser().getId().equals(sellerId))
+                          .map(item -> modelMapper.map(item, OrderItemDTO.class))
+                          .toList();
+                  dto.setOrderItems(new ArrayList<>(sellerItems));
+                  dto.setTotalAmount(
+                      sellerItems.stream()
+                          .mapToDouble(item -> item.getOrderedProductPrice() * item.getQuantity())
+                          .sum());
+                  return dto;
+                })
+            .toList();
 
     OrderResponse response = new OrderResponse();
     response.setContent(orders);

@@ -1,6 +1,7 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import Status from './Status.jsx';
 import { MdClose, MdDone } from 'react-icons/md';
+import { formatPrice } from '../../utils/formatPrice.js';
 
 function ProductViewModal({open, setOpen, product, isAvailable}) {
 
@@ -54,16 +55,16 @@ function ProductViewModal({open, setOpen, product, isAvailable}) {
                                         {hasDiscount ? (
                                             <div className="flex items-center gap-2">
                       <span className="text-gray-400 line-through">
-                        ${Number(productPrice).toFixed(2)}
+                        {formatPrice(Number(productPrice))}
                       </span>
                                                 <span className="sm:text-xl font-semibold text-slate-700">
-                        ${Number(specialPrice).toFixed(2)}
+                        {formatPrice(Number(specialPrice))}
                       </span>
                                             </div>
                                         ) : (
                                             <span className="text-xl font-bold">
                       {" "}
-                                                ${Number(productPrice).toFixed(2)}
+                                                {formatPrice(Number(productPrice))}
                     </span>
                                         )}
 

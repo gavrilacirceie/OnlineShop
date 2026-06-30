@@ -3,7 +3,6 @@ package org.platforma.onlineshop.service;
 import jakarta.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.platforma.onlineshop.model.AppRole;
 import org.platforma.onlineshop.model.Role;
@@ -18,6 +17,7 @@ import org.platforma.onlineshop.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,7 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 @Service
 @Transactional
@@ -44,8 +43,7 @@ public class AuthServiceImpl implements AuthService {
 
   @Autowired PasswordEncoder passwordEncoder;
 
-  @Autowired
-  ModelMapper modelMapper;
+  @Autowired ModelMapper modelMapper;
 
   @Override
   public AuthenticationResult login(LoginRequest loginRequest) {
@@ -88,8 +86,8 @@ public class AuthServiceImpl implements AuthService {
             passwordEncoder.encode(signupRequest.getPassword()),
             signupRequest.getEmail(),
             signupRequest.getUsername(),
-                signupRequest.getFirstName(),
-                signupRequest.getLastName());
+            signupRequest.getFirstName(),
+            signupRequest.getLastName());
 
     Set<String> roles = signupRequest.getRoles();
     Set<Role> roleSet = new HashSet<>();
@@ -132,87 +130,83 @@ public class AuthServiceImpl implements AuthService {
     return ResponseEntity.ok(new MessageResponse("User registered successfully"));
   }
 
-    @Override
+  @Override
   public LoginResponse getUserDetails(Authentication authentication) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles =
-                userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-        LoginResponse loginResponse =
-                new LoginResponse(
-                        userDetails.getId(),
-                        userDetails.getUsername(),
-                        roles,
-                        userDetails.getEmail(),
-                        null,
-                        userDetails.getFirstName(),
-                        userDetails.getLastName());
+    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+    List<String> roles =
+        userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+    LoginResponse loginResponse =
+        new LoginResponse(
+            userDetails.getId(),
+            userDetails.getUsername(),
+            roles,
+            userDetails.getEmail(),
+            null,
+            userDetails.getFirstName(),
+            userDetails.getLastName());
 
-        return loginResponse;
+    return loginResponse;
+  }
+
+  @Override
+  public AuthenticationResult updateUserDetails(
+      ProfileUpdateRequest profileUpdateRequest, Authentication authentication) {
+    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+    User user =
+        userRepository
+            .findById(userDetails.getId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+    boolean usernameChanged = !user.getUsername().equals(profileUpdateRequest.getUsername());
+    boolean emailChanged = !user.getEmail().equals(profileUpdateRequest.getEmail());
+
+    if (usernameChanged && userRepository.existsByUsername(profileUpdateRequest.getUsername())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
     }
 
-    @Override
-    public AuthenticationResult updateUserDetails(
-            ProfileUpdateRequest profileUpdateRequest, Authentication authentication) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        User user =
-                userRepository
-                        .findById(userDetails.getId())
-                        .orElseThrow(
-                                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
-        boolean usernameChanged =
-                !user.getUsername().equals(profileUpdateRequest.getUsername());
-        boolean emailChanged = !user.getEmail().equals(profileUpdateRequest.getEmail());
-
-        if (usernameChanged && userRepository.existsByUsername(profileUpdateRequest.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
-        }
-
-        if (emailChanged && userRepository.existsByEmail(profileUpdateRequest.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
-        }
-
-        user.setFirstName(profileUpdateRequest.getFirstName());
-        user.setLastName(profileUpdateRequest.getLastName());
-        user.setUsername(profileUpdateRequest.getUsername());
-        user.setEmail(profileUpdateRequest.getEmail());
-
-        User updatedUser = userRepository.save(user);
-        UserDetailsImpl updatedUserDetails = UserDetailsImpl.build(updatedUser);
-        ResponseCookie jwtCookie = jwtUtils.getResponseCookie(updatedUserDetails);
-        List<String> roles =
-                updatedUserDetails.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .toList();
-
-        LoginResponse loginResponse =
-                new LoginResponse(
-                        updatedUserDetails.getId(),
-                        updatedUserDetails.getUsername(),
-                        roles,
-                        updatedUserDetails.getEmail(),
-                        jwtCookie.getValue(),
-                        updatedUserDetails.getFirstName(),
-                        updatedUserDetails.getLastName());
-
-        return new AuthenticationResult(loginResponse, jwtCookie);
+    if (emailChanged && userRepository.existsByEmail(profileUpdateRequest.getEmail())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
     }
 
-    @Override
-    public UserResponse getAllSellers(Pageable pageDetails) {
-        Page<User> allUsers = userRepository.findByRoleName((AppRole.ROLE_SELLER), pageDetails);
-        List<UserDTO> userDtos = allUsers.getContent()
-                .stream()
-                .map(p -> modelMapper.map(p, UserDTO.class))
-                .collect(Collectors.toList());
+    user.setFirstName(profileUpdateRequest.getFirstName());
+    user.setLastName(profileUpdateRequest.getLastName());
+    user.setUsername(profileUpdateRequest.getUsername());
+    user.setEmail(profileUpdateRequest.getEmail());
 
-        UserResponse response = new UserResponse();
-        response.setContent(userDtos);
-        response.setPageNumber(allUsers.getNumber());
-        response.setPageSize(allUsers.getSize());
-        response.setTotalElements(allUsers.getTotalElements());
-        response.setTotalPages(allUsers.getTotalPages());
-        response.setLastPage(allUsers.isLast());
-        return response;
-    }
+    User updatedUser = userRepository.save(user);
+    UserDetailsImpl updatedUserDetails = UserDetailsImpl.build(updatedUser);
+    ResponseCookie jwtCookie = jwtUtils.getResponseCookie(updatedUserDetails);
+    List<String> roles =
+        updatedUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+
+    LoginResponse loginResponse =
+        new LoginResponse(
+            updatedUserDetails.getId(),
+            updatedUserDetails.getUsername(),
+            roles,
+            updatedUserDetails.getEmail(),
+            jwtCookie.getValue(),
+            updatedUserDetails.getFirstName(),
+            updatedUserDetails.getLastName());
+
+    return new AuthenticationResult(loginResponse, jwtCookie);
+  }
+
+  @Override
+  public UserResponse getAllSellers(Pageable pageDetails) {
+    Page<User> allUsers = userRepository.findByRoleName((AppRole.ROLE_SELLER), pageDetails);
+    List<UserDTO> userDtos =
+        allUsers.getContent().stream()
+            .map(p -> modelMapper.map(p, UserDTO.class))
+            .collect(Collectors.toList());
+
+    UserResponse response = new UserResponse();
+    response.setContent(userDtos);
+    response.setPageNumber(allUsers.getNumber());
+    response.setPageSize(allUsers.getSize());
+    response.setTotalElements(allUsers.getTotalElements());
+    response.setTotalPages(allUsers.getTotalPages());
+    response.setLastPage(allUsers.isLast());
+    return response;
+  }
 }

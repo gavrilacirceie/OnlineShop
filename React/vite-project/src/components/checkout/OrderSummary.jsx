@@ -1,4 +1,4 @@
-import { formatPriceCalculation } from '../../utils/formatPrice'
+import { formatPrice, formatPriceCalculation } from '../../utils/formatPrice'
 import {getProductImageUrl} from "../../utils/imageUrl.js";
 
 const OrderSummary = ({ totalPrice, cart, address, paymentMethod}) => {
@@ -58,16 +58,18 @@ const OrderSummary = ({ totalPrice, cart, address, paymentMethod}) => {
                                     <div key={item?.productId} className='flex items-center'>
                                         <img src={getProductImageUrl(item?.image)}
                                              alt='Product'
-                                             className='w-12 h-12 rounded-sm'></img>
+                                            className='w-12 h-12 rounded-sm'></img>
                                         <div className='text-gray-500'>
                                             <p>{item?.productName}</p>
                                             <p>
-                                                {item?.quantity} x ${item?.specialPrice || item?.productPrice || item?.price} = ${
-                                                formatPriceCalculation(
-                                                    item?.quantity,
-                                                    item?.specialPrice || item?.productPrice || item?.price || 0
+                                                {item?.quantity} x {formatPrice(Number(item?.specialPrice || item?.productPrice || item?.price || 0))} = {formatPrice(
+                                                Number(
+                                                    formatPriceCalculation(
+                                                        item?.quantity,
+                                                        item?.specialPrice || item?.productPrice || item?.price || 0
+                                                    )
                                                 )
-                                            }
+                                            )}
                                             </p>
                                         </div>
                                     </div>
@@ -85,15 +87,15 @@ const OrderSummary = ({ totalPrice, cart, address, paymentMethod}) => {
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <span>Products</span>
-                                <span>${formatPriceCalculation(orderTotal, 1)}</span>
+                                <span>{formatPrice(Number(formatPriceCalculation(orderTotal, 1)))}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Tax (0%)</span>
-                                <span>$0.00</span>
+                                <span>{formatPrice(0)}</span>
                             </div>
                             <div className="flex justify-between font-semibold">
                                 <span>SubTotal</span>
-                                <span>${formatPriceCalculation(orderTotal, 1)}</span>
+                                <span>{formatPrice(Number(formatPriceCalculation(orderTotal, 1)))}</span>
                             </div>
                         </div>
                     </div>

@@ -17,10 +17,10 @@ public interface AuthService {
 
   ResponseEntity<MessageResponse> register(@Valid SignupRequest signupRequest);
 
-    LoginResponse getUserDetails(Authentication authentication);
+  LoginResponse getUserDetails(Authentication authentication);
 
-    AuthenticationResult updateUserDetails(
-        @Valid ProfileUpdateRequest profileUpdateRequest, Authentication authentication);
+  AuthenticationResult updateUserDetails(
+      @Valid ProfileUpdateRequest profileUpdateRequest, Authentication authentication);
 
-    UserResponse getAllSellers(Pageable pageDetails);
+  UserResponse getAllSellers(Pageable pageDetails);
 }

@@ -3,7 +3,6 @@ package org.platforma.onlineshop.repositories;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.Optional;
-
 import org.platforma.onlineshop.model.AppRole;
 import org.platforma.onlineshop.model.User;
 import org.springframework.data.domain.Page;

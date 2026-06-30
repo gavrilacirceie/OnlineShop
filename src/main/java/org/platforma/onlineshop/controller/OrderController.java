@@ -78,8 +78,9 @@ public class OrderController {
       @RequestParam(defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
       @RequestParam(defaultValue = AppConstants.SORT_ORDERS_BY) String sortBy,
       @RequestParam(defaultValue = AppConstants.SORT_DIR) String sortOrder) {
-    return ResponseEntity.ok(orderService.getSellerOrders(
-        authUtil.loggedInUserId(), pageNumber, pageSize, sortBy, sortOrder));
+    return ResponseEntity.ok(
+        orderService.getSellerOrders(
+            authUtil.loggedInUserId(), pageNumber, pageSize, sortBy, sortOrder));
   }
 
   @GetMapping("/orders/user")

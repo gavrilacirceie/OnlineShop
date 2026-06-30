@@ -2,13 +2,11 @@ package org.platforma.onlineshop.controller;
 
 import jakarta.validation.Valid;
 import java.util.*;
-
 import org.platforma.onlineshop.config.AppConstants;
 import org.platforma.onlineshop.payload.AuthenticationResult;
 import org.platforma.onlineshop.repositories.RoleRepository;
 import org.platforma.onlineshop.repositories.UserRepository;
 import org.platforma.onlineshop.security.*;
-import org.platforma.onlineshop.security.services.UserDetailsImpl;
 import org.platforma.onlineshop.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +17,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,11 +84,12 @@ public class AuthController {
 
   @GetMapping("/sellers")
   public ResponseEntity<?> getAllSellers(
-          @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber) {
+      @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false)
+          Integer pageNumber) {
 
     Sort sortByAndOrder = Sort.by(AppConstants.SORT_USERS_BY).descending();
-    Pageable pageDetails = PageRequest.of(pageNumber ,
-            Integer.parseInt(AppConstants.PAGE_SIZE), sortByAndOrder);
+    Pageable pageDetails =
+        PageRequest.of(pageNumber, Integer.parseInt(AppConstants.PAGE_SIZE), sortByAndOrder);
 
     return ResponseEntity.ok(authService.getAllSellers(pageDetails));
   }

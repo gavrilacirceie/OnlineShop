@@ -57,8 +57,7 @@ public class ProductServiceImpl implements ProductService {
     return createProduct(categoryId, productDTO, null);
   }
 
-  private ProductDTO createProduct(
-      Long categoryId, ProductDTO productDTO, User seller) {
+  private ProductDTO createProduct(Long categoryId, ProductDTO productDTO, User seller) {
     boolean isProductNotFound = true;
     Product product = modelMapper.map(productDTO, Product.class);
     Category category =
@@ -260,29 +259,43 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public ProductDTO createSellerProduct(Long sellerId, Long categoryId, ProductDTO productDTO) {
-    User seller = userRepository.findById(sellerId)
-        .orElseThrow(() -> new ResourceNotFoundException("User", "id", sellerId));
+    User seller =
+        userRepository
+            .findById(sellerId)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", sellerId));
     return createProduct(categoryId, productDTO, seller);
   }
 
   @Override
   public ProductResponse getSellerProducts(
-      Long sellerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
+      Long sellerId,
+      Integer pageNumber,
+      Integer pageSize,
+      String sortBy,
+      String sortOrder,
       String keyword) {
-    User seller = userRepository.findById(sellerId)
-        .orElseThrow(() -> new ResourceNotFoundException("User", "id", sellerId));
-    Sort sort = sortOrder.equalsIgnoreCase("asc")
-        ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+    User seller =
+        userRepository
+            .findById(sellerId)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", sellerId));
+    Sort sort =
+        sortOrder.equalsIgnoreCase("asc")
+            ? Sort.by(sortBy).ascending()
+            : Sort.by(sortBy).descending();
     Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-    Page<Product> page = keyword == null || keyword.isBlank()
-        ? productRepository.findByUser(seller, pageable)
-        : productRepository.findByUserAndProductNameContainingIgnoreCase(seller, keyword, pageable);
+    Page<Product> page =
+        keyword == null || keyword.isBlank()
+            ? productRepository.findByUser(seller, pageable)
+            : productRepository.findByUserAndProductNameContainingIgnoreCase(
+                seller, keyword, pageable);
     return getProductResponse(page.getContent(), page);
   }
 
   private Product requireSellerProduct(Long sellerId, Long productId) {
-    Product product = productRepository.findById(productId)
-        .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+    Product product =
+        productRepository
+            .findById(productId)
+            .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
     if (product.getUser() == null || !product.getUser().getId().equals(sellerId)) {
       throw new APIException("You can only manage your own products");
     }

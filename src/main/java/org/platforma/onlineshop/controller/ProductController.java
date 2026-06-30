@@ -111,15 +111,16 @@ public class ProductController {
       @RequestParam(defaultValue = AppConstants.SORT_PRODUCTS_BY) String sortBy,
       @RequestParam(defaultValue = AppConstants.SORT_DIR) String sortOrder,
       @RequestParam(required = false) String keyword) {
-    return ResponseEntity.ok(productService.getSellerProducts(
-        authUtil.loggedInUserId(), pageNumber, pageSize, sortBy, sortOrder, keyword));
+    return ResponseEntity.ok(
+        productService.getSellerProducts(
+            authUtil.loggedInUserId(), pageNumber, pageSize, sortBy, sortOrder, keyword));
   }
 
   @PutMapping("/seller/products/{productId}")
   public ResponseEntity<ProductDTO> updateSellerProduct(
       @PathVariable Long productId, @Valid @RequestBody ProductDTO productDTO) {
-    return ResponseEntity.ok(productService.updateSellerProduct(
-        authUtil.loggedInUserId(), productId, productDTO));
+    return ResponseEntity.ok(
+        productService.updateSellerProduct(authUtil.loggedInUserId(), productId, productDTO));
   }
 
   @DeleteMapping("/seller/products/{productId}")
@@ -131,7 +132,7 @@ public class ProductController {
   @PutMapping("/seller/products/{productId}/image")
   public ResponseEntity<ProductDTO> updateSellerProductImage(
       @PathVariable Long productId, @RequestParam("image") MultipartFile image) throws IOException {
-    return ResponseEntity.ok(productService.updateSellerProductImage(
-        authUtil.loggedInUserId(), productId, image));
+    return ResponseEntity.ok(
+        productService.updateSellerProductImage(authUtil.loggedInUserId(), productId, image));
   }
 }

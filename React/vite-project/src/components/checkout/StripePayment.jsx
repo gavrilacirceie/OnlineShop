@@ -19,7 +19,7 @@ const StripePayment = () =>{
         if(!clientSecret){
             dispatch(createStripePaymentSecret({
                 amount: Number(totalPrice) * 100,
-                currency: "usd",
+                currency: "ron",
                 email: user.email,
                 name: `${user.username}`,
                 address: selectedUserCheckoutAddress,

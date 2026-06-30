@@ -31,7 +31,11 @@ public interface ProductService {
   ProductDTO createSellerProduct(Long sellerId, Long categoryId, ProductDTO product);
 
   ProductResponse getSellerProducts(
-      Long sellerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
+      Long sellerId,
+      Integer pageNumber,
+      Integer pageSize,
+      String sortBy,
+      String sortOrder,
       String keyword);
 
   ProductDTO updateSellerProduct(Long sellerId, Long productId, ProductDTO productDTO);

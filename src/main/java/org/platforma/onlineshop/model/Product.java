@@ -26,6 +26,8 @@ public class Product {
 
   @NotBlank
   @Size(min = 1, message = "Product name must contain atleast 6 characters")
+  @Lob
+  @Column(columnDefinition = "TEXT")
   private String productDescription;
 
   private String image;

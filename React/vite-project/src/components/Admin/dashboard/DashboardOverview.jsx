@@ -29,7 +29,7 @@ const DashboardOverview = ({
     const palette = tones[tone] ?? tones.blue;
     const numericAmount = Number(amount) || 0;
     const displayedAmount = revenue
-        ? `$${formatRevenue(numericAmount)}`
+        ? `${formatRevenue(numericAmount)} RON`
         : numericAmount.toLocaleString("en-US");
 
     return (

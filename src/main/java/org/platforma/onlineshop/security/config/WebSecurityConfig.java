@@ -169,11 +169,7 @@ public class WebSecurityConfig {
       if (!userRepository.existsByUsername("user1")) {
         User user1 =
             new User(
-                passwordEncoder.encode("password1"),
-                "user1@example.com",
-                "user1",
-                "User",
-                "One");
+                passwordEncoder.encode("password1"), "user1@example.com", "user1", "User", "One");
         userRepository.save(user1);
       }
 
@@ -191,11 +187,7 @@ public class WebSecurityConfig {
       if (!userRepository.existsByUsername("admin")) {
         User admin =
             new User(
-                passwordEncoder.encode("adminPass"),
-                "admin@example.com",
-                "admin",
-                "Admin",
-                "User");
+                passwordEncoder.encode("adminPass"), "admin@example.com", "admin", "Admin", "User");
         userRepository.save(admin);
       }
 
